@@ -11,6 +11,7 @@ target_sources(LumineTools
     PUBLIC
         FILE_SET CXX_MODULES FILES
             ${TOOLS_MODULES}
+            $<$<BOOL:${MSVC}>:${STD_IXX_PATH}>  # Include std.ixx only if MSVC is used
     PRIVATE
         ${TOOLS_SOURCES}
 )

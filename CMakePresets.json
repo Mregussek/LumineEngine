@@ -1,55 +1,55 @@
 {
-  "version": 3,
+  "version": 4,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 30,
+    "minor": 31,
     "patch": 0
   },
   "configurePresets": [
     {
-      "name": "default",
-      "description": "Default build with C++23",
+      "name": "ninja-cl-win64-release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/default",
-      "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "23",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin"
-      }
-    },
-    {
-      "name": "debug",
-      "description": "Debug build with extra warnings",
-      "inherits": "default",
-      "binaryDir": "${sourceDir}/build/debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "release",
-      "description": "Release build with optimizations",
-      "inherits": "default",
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": true,
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/cmake/ninja_win_v1.12.1/ninja.exe",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release"
+      }
+    },
+    {
+      "name": "ninja-cl-win64-debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_DEBUG_POSTFIX": "_d",
+        "CMAKE_CXX_STANDARD": "23",
+        "CMAKE_CXX_STANDARD_REQUIRED": true,
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/cmake/ninja_win_v1.12.1/ninja.exe",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "build-default",
-      "configurePreset": "default"
+      "name": "ninja-cl-win64-release",
+      "configurePreset": "ninja-cl-win64-release",
+      "configuration": "Release"
     },
     {
-      "name": "build-debug",
-      "configurePreset": "debug"
-    },
-    {
-      "name": "build-release",
-      "configurePreset": "release"
+      "name": "ninja-cl-win64-debug",
+      "configurePreset": "ninja-cl-win64-debug",
+      "configuration": "Debug"
     }
   ]
 }
