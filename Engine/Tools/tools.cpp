@@ -5,7 +5,7 @@ module;
 
 module Tools;
 
-namespace tools
+namespace lumine
 {
 
 void ToolsClass::hello()

@@ -1,9 +1,9 @@
 
-import Tools;
 import Graphics;
 
+using namespace lumine;
+
 int main() {
-    graphics::GraphicsClass graphics;
+    GraphicsClass graphics;
     graphics.hello();
-    graphics.use_tools();
 }

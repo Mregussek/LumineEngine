@@ -1,26 +1,22 @@
 
 module;
 
-import Tools;
-#include <iostream>
+#include "GLogger.h"
 
 module Graphics;
 
-namespace graphics
+namespace lumine
 {
-
 
 void GraphicsClass::hello()
 {
-    std::cout << "Hello from Graphics\n";
+	GCREATE_LOGGER();
+	GTRACE("Hello from Graphics Logger!");
+	GDEBUG("Hello from Graphics Logger!");
+	GINFO("Hello from Graphics Logger!");
+	GWARN("Hello from Graphics Logger!");
+	GERROR("Hello from Graphics Logger!");
+	GCRITICAL("Hello from Graphics Logger!");
 }
-
-
-void GraphicsClass::use_tools()
-{
-    tools::ToolsClass tools;
-    tools.hello();
-}
-
 
 }

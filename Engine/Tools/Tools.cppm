@@ -4,14 +4,12 @@ module;
 export module Tools;
 
 
-export namespace tools
+export namespace lumine
 {
-
 
 class ToolsClass {
 public:
     void hello();
 };
-
 
 }
