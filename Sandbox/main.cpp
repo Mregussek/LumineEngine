@@ -1,5 +1,8 @@
 
-#ifndef LUMINE_USE_DIRECTX12
+#if LUMINE_USE_DIRECTX12
+    #define LUMINE_USE_DIRECTX12 1
+#endif
+#if LUMINE_USE_VULKAN
     #define LUMINE_USE_DIRECTX12 0
 #endif
 

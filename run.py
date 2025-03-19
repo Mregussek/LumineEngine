@@ -13,6 +13,7 @@ RELEASE = "release"
 DEBUG = "debug"
 VULKAN = "vulkan"
 DIRECTX12 = "directx12"
+CMAKE_BUILD_DIR = "build"
 
 
 def ensure_path_exists(path):
@@ -44,11 +45,14 @@ class ArgParser:
         parser.add_argument('-m', '--mode', choices=[DEBUG, RELEASE], default=RELEASE,
                             help='Specify generate/build mode (default: {})'.format(RELEASE))
         parser.add_argument('-g', '--graphics', choices=[VULKAN, DIRECTX12], default=VULKAN,
-                            help='Specify graphics API (default: {}, used for building)'.format(VULKAN))
-        parser.add_argument('--generate', action='store_true', help='Generate the project')
-        parser.add_argument('--build', action='store_true', help='Build the project')
-
-        parser.add_argument('--run', action='store_true', help='Run the sandbox')
+                            help='Specify graphics API (default: {})'.format(VULKAN))
+        parser.add_argument('--generate', action='store_true',
+                            help='Generates the project (--graphics flag dependent)')
+        parser.add_argument('--build', action='store_true',
+                            help='Generates and builds the project (--graphics flag dependent)')
+        parser.add_argument('--clean', action='store_true',
+                            help='Cleans the build project (--graphics flag dependent)')
+        parser.add_argument('--run', action='store_true', help='Runs the sandbox')
         self.__args = parser.parse_args()
 
     def should_generate(self):
@@ -56,6 +60,9 @@ class ArgParser:
 
     def should_build(self):
         return self.__args.build
+
+    def should_clean(self):
+        return self.__args.clean
 
     def should_run(self):
         return self.__args.run
@@ -123,18 +130,32 @@ class CMakePresetsParser:
 
 class CMakeRunner:
 
-    __USE_VK = "-DLUMINE_USE_VULKAN=1"
-    __USE_DX12 = "-DLUMINE_USE_DIRECTX12=1"
+    __USE_VK = "-DLUMINE_USE_VULKAN={}"
+    __USE_DX12 = "-DLUMINE_USE_DIRECTX12={}"
 
     @staticmethod
     def get_generate_cmd(preset, graphics_api):
-        if graphics_api == DIRECTX12:
-            return "cmake --preset={} {}".format(preset, CMakeRunner.__USE_DX12)
-        return "cmake --preset={} {}".format(preset, CMakeRunner.__USE_VK)
+        return CMakeRunner.__get_graphics_dependent_cmd("cmake --preset={}".format(preset),
+                                                        graphics_api)
 
     @staticmethod
     def get_build_cmd(preset):
         return "cmake --build --preset={}".format(preset)
+
+    @staticmethod
+    def get_fresh_cmd(preset, graphics_api):
+        return CMakeRunner.__get_graphics_dependent_cmd("cmake --fresh --preset={}".format(preset),
+                                                        graphics_api)
+
+    @staticmethod
+    def __get_graphics_dependent_cmd(cmd, graphics_api):
+        if graphics_api == DIRECTX12:
+            dx12 = CMakeRunner.__USE_DX12.format("1")
+            vk = CMakeRunner.__USE_VK.format("0")
+        else:
+            dx12 = CMakeRunner.__USE_DX12.format("0")
+            vk = CMakeRunner.__USE_VK.format("1")
+        return "{} {} {}".format(cmd, dx12, vk)
 
 
 class WindowsRunner:
@@ -163,12 +184,16 @@ class WindowsRunner:
             return
         else:
             _, stderr = process.communicate()
-            msg = "Command \"{}\" in VsDevCmd.bat failed with {} rc:\n\n{}".format(command, process.returncode, stderr)
+            msg =\
+                "Command \"{}\" in VsDevCmd.bat failed with {} rc:\n\n{}".format(command,
+                                                                                 process.returncode,
+                                                                                 stderr)
             logging.error(msg)
             raise RuntimeError(msg)
 
     def run_sandbox(self, build_mode):
-        sandbox = os.path.join(os.getcwd(), "build", "bin", build_mode, WindowsRunner.__DEFAULT_SANDBOX_FILENAME)
+        sandbox = os.path.join(os.getcwd(), "build", "bin", build_mode,
+                               WindowsRunner.__DEFAULT_SANDBOX_FILENAME)
         ensure_path_exists(sandbox)
         logging.info(f"Running: {sandbox}\n")
         WindowsRunner.__run_cmd(sandbox)
@@ -208,9 +233,10 @@ class WindowsRunner:
         return vsdevcmd
 
 
-if __name__ == "__main__":
+def main():
+    logging_format = '{} %(asctime)s -%(levelname)s- %(message)s'.format(os.path.basename(__file__))
     logging.basicConfig(level=logging.INFO,
-                        format='{} %(asctime)s -%(levelname)s- %(message)s'.format(os.path.basename(__file__)),
+                        format=logging_format,
                         datefmt='%H:%M:%S')
     if Platform.is_win64():
         runner = WindowsRunner()
@@ -223,7 +249,12 @@ if __name__ == "__main__":
     cmake_presets = CMakePresetsParser()
     cmake_runner = CMakeRunner()
 
-    if args.should_generate() or args.should_build():
+    if args.should_clean():
+        clean_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode())
+        runner.run_dev_command(cmake_runner.get_fresh_cmd(clean_preset, args.get_graphics_api()))
+        return
+
+    if args.should_generate():
         conf_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode())
         runner.run_dev_command(cmake_runner.get_generate_cmd(conf_preset, args.get_graphics_api()))
 
@@ -233,3 +264,8 @@ if __name__ == "__main__":
 
     if args.should_run():
         runner.run_sandbox(args.get_build_mode())
+        return
+
+
+if __name__ == "__main__":
+    main()
