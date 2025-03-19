@@ -11,6 +11,8 @@ WIN64 = "win64"
 LINUX64 = "linux64"
 RELEASE = "release"
 DEBUG = "debug"
+VULKAN = "vulkan"
+DIRECTX12 = "directx12"
 
 
 def ensure_path_exists(path):
@@ -40,9 +42,12 @@ class ArgParser:
     def __init__(self):
         parser = argparse.ArgumentParser(description='LumineEngine runner script')
         parser.add_argument('-m', '--mode', choices=[DEBUG, RELEASE], default=RELEASE,
-                            help='Specify the generate/build mode (default: {})'.format(RELEASE))
+                            help='Specify generate/build mode (default: {})'.format(RELEASE))
+        parser.add_argument('-g', '--graphics', choices=[VULKAN, DIRECTX12], default=VULKAN,
+                            help='Specify graphics API (default: {}, used for building)'.format(VULKAN))
         parser.add_argument('--generate', action='store_true', help='Generate the project')
         parser.add_argument('--build', action='store_true', help='Build the project')
+
         parser.add_argument('--run', action='store_true', help='Run the sandbox')
         self.__args = parser.parse_args()
 
@@ -59,6 +64,11 @@ class ArgParser:
         if self.__args.mode == DEBUG:
             return DEBUG
         return RELEASE
+    
+    def get_graphics_api(self):
+        if self.__args.graphics == DIRECTX12:
+            return DIRECTX12
+        return VULKAN
 
 
 class Platform:
@@ -109,6 +119,22 @@ class CMakePresetsParser:
         msg = 'No valid preset found.'
         logging.error(msg)
         raise RuntimeError(msg)
+
+
+class CMakeRunner:
+
+    __USE_VK = "-DLUMINE_USE_VULKAN=1"
+    __USE_DX12 = "-DLUMINE_USE_DIRECTX12=1"
+
+    @staticmethod
+    def get_generate_cmd(preset, graphics_api):
+        if graphics_api == DIRECTX12:
+            return "cmake --preset={} {}".format(preset, CMakeRunner.__USE_DX12)
+        return "cmake --preset={} {}".format(preset, CMakeRunner.__USE_VK)
+
+    @staticmethod
+    def get_build_cmd(preset):
+        return "cmake --build --preset={}".format(preset)
 
 
 class WindowsRunner:
@@ -195,14 +221,15 @@ if __name__ == "__main__":
 
     args = ArgParser()
     cmake_presets = CMakePresetsParser()
+    cmake_runner = CMakeRunner()
 
     if args.should_generate() or args.should_build():
         conf_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode())
-        runner.run_dev_command("cmake --preset={}".format(conf_preset))
+        runner.run_dev_command(cmake_runner.get_generate_cmd(conf_preset, args.get_graphics_api()))
 
     if args.should_build():
         build_preset = cmake_presets.get_build_preset(platform_os, args.get_build_mode())
-        runner.run_dev_command("cmake --build --preset={}".format(build_preset))
+        runner.run_dev_command(cmake_runner.get_build_cmd(build_preset))
 
     if args.should_run():
         runner.run_sandbox(args.get_build_mode())

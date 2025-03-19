@@ -1,3 +1,6 @@
 [submodule "Engine/Tools/3rdparty/spdlog"]
 	path = Engine/Tools/3rdparty/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Engine/Graphics/3rdparty/volk"]
+	path = Engine/Graphics/3rdparty/volk
+	url = https://github.com/zeux/volk.git
