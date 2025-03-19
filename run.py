@@ -53,6 +53,7 @@ class ArgParser:
         parser.add_argument('--clean', action='store_true',
                             help='Cleans the build project (--graphics flag dependent)')
         parser.add_argument('--run', action='store_true', help='Runs the sandbox')
+        parser.add_argument('--open', action='store_true', help='Opens the project in VS')
         self.__args = parser.parse_args()
 
     def should_generate(self):
@@ -66,6 +67,9 @@ class ArgParser:
 
     def should_run(self):
         return self.__args.run
+
+    def should_open(self):
+        return self.__args.open
 
     def get_build_mode(self):
         if self.__args.mode == DEBUG:
@@ -173,10 +177,10 @@ class WindowsRunner:
 
         self.vs_dev_cmd = WindowsRunner.__get_dev_cmd_prompt(vs_edition)
 
-    def run_dev_command(self, command):
+    def run_dev_command(self, command, should_wait=True):
         dev_command = 'cmd.exe /c \"\"{}\" && {}\"'.format(self.vs_dev_cmd, command)
         logging.info(f"Running dev command: {dev_command}\n")
-        process = WindowsRunner.__run_cmd(dev_command)
+        process = WindowsRunner.__run_cmd(command=dev_command, should_wait=should_wait)
 
         print("\n")
         if process.returncode == 0:
@@ -196,13 +200,16 @@ class WindowsRunner:
                                WindowsRunner.__DEFAULT_SANDBOX_FILENAME)
         ensure_path_exists(sandbox)
         logging.info(f"Running: {sandbox}\n")
-        WindowsRunner.__run_cmd(sandbox)
+        WindowsRunner.__run_cmd(sandbox, should_wait=True)
 
-    def __run_cmd(command):
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   text=True, encoding='utf-8', bufsize=1, errors='replace')
-        for line in process.stdout:
-            print(line.strip())
+    def __run_cmd(command, should_wait):
+        if should_wait:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                       text=True, encoding='utf-8', bufsize=1, errors='replace')
+            for line in process.stdout:
+                print(line.strip())
+        else:
+            process = subprocess.Popen(command)
         process.wait()
         return process
 
@@ -248,6 +255,10 @@ def main():
     args = ArgParser()
     cmake_presets = CMakePresetsParser()
     cmake_runner = CMakeRunner()
+
+    if args.should_open():
+        runner.run_dev_command(command="devenv .", should_wait=False)
+        return
 
     if args.should_clean():
         clean_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode())
