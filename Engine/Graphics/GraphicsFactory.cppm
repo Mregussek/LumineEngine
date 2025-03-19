@@ -10,12 +10,16 @@ export namespace lumine::graphics
 class GraphicsFactory {
 public:
 
-    virtual ~GraphicsFactory() { }
+    virtual ~GraphicsFactory();
 
 public:
 
     virtual void Initialize();
     virtual void Close();
+
+private:
+
+    bool m_Initialized{ false };
 
 };
 

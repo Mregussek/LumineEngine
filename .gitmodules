@@ -4,3 +4,6 @@
 [submodule "Engine/Graphics/3rdparty/volk"]
 	path = Engine/Graphics/3rdparty/volk
 	url = https://github.com/zeux/volk.git
+[submodule "Engine/Tools/3rdparty/crosswindow"]
+	path = Engine/Tools/3rdparty/crosswindow
+	url = https://github.com/alaingalvan/crosswindow.git

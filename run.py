@@ -12,7 +12,7 @@ LINUX64 = "linux64"
 RELEASE = "release"
 DEBUG = "debug"
 VULKAN = "vulkan"
-DIRECTX12 = "directx12"
+DIRECTX12 = "dx12"
 CMAKE_BUILD_DIR = "build"
 
 
@@ -106,27 +106,34 @@ class CMakePresetsParser:
                 raise FileNotFoundError(msg)
 
         logging.debug("Loaded {}".format(presets_file))
-        self.build_presets = presets.get('buildPresets', [])
-        self.configure_presets = presets.get('configurePresets', [])
 
-    def get_configure_preset(self, platform, mode):
-        preset = CMakePresetsParser.__get_preset_name(self.configure_presets, platform, mode)
+        def filter_visible(presets):
+            return [p for p in presets if not p.get("hidden", False)]
+
+        self.build_presets = filter_visible(presets.get('buildPresets', []))
+        self.configure_presets = filter_visible(presets.get('configurePresets', []))
+
+    def get_configure_preset(self, platform, mode, graphics_api):
+        required_params = { platform, mode, graphics_api }
+        preset = CMakePresetsParser.__get_preset_name(self.configure_presets, required_params)
         logging.info("Selected configure preset: {}".format(preset))
         return preset
 
     def get_build_preset(self, platform, mode):
-        preset = CMakePresetsParser.__get_preset_name(self.build_presets, platform, mode)
+        required_params = { platform, mode }
+        preset = CMakePresetsParser.__get_preset_name(self.build_presets, required_params)
         logging.info("Selected build preset: {}".format(preset))
         return preset
 
-    def __get_preset_name(presets, platform, mode):
-        logging.debug(f"Getting preset for {mode}...")
+    def __get_preset_name(presets, required_params):
+        logging.debug(f"Getting preset for {required_params}...")
         for preset in presets:
-            name = preset.get('name', '').lower()
-            if platform in name and mode in name:
+            name = preset.get('name')
+            name_parts = name.split('_')
+            if required_params.issubset(name_parts):
                 logging.debug(f"Selected preset: {preset}")
                 return name
-        
+
         msg = 'No valid preset found.'
         logging.error(msg)
         raise RuntimeError(msg)
@@ -134,32 +141,17 @@ class CMakePresetsParser:
 
 class CMakeRunner:
 
-    __USE_VK = "-DLUMINE_USE_VULKAN={}"
-    __USE_DX12 = "-DLUMINE_USE_DIRECTX12={}"
-
     @staticmethod
-    def get_generate_cmd(preset, graphics_api):
-        return CMakeRunner.__get_graphics_dependent_cmd("cmake --preset={}".format(preset),
-                                                        graphics_api)
+    def get_generate_cmd(preset):
+        return "cmake --preset={}".format(preset)
 
     @staticmethod
     def get_build_cmd(preset):
         return "cmake --build --preset={}".format(preset)
 
     @staticmethod
-    def get_fresh_cmd(preset, graphics_api):
-        return CMakeRunner.__get_graphics_dependent_cmd("cmake --fresh --preset={}".format(preset),
-                                                        graphics_api)
-
-    @staticmethod
-    def __get_graphics_dependent_cmd(cmd, graphics_api):
-        if graphics_api == DIRECTX12:
-            dx12 = CMakeRunner.__USE_DX12.format("1")
-            vk = CMakeRunner.__USE_VK.format("0")
-        else:
-            dx12 = CMakeRunner.__USE_DX12.format("0")
-            vk = CMakeRunner.__USE_VK.format("1")
-        return "{} {} {}".format(cmd, dx12, vk)
+    def get_fresh_cmd(preset):
+        return "cmake --fresh --preset={}".format(preset)
 
 
 class WindowsRunner:
@@ -201,6 +193,9 @@ class WindowsRunner:
         ensure_path_exists(sandbox)
         logging.info(f"Running: {sandbox}\n")
         WindowsRunner.__run_cmd(sandbox, should_wait=True)
+    
+    def run_visual_studio(self):
+        self.run_dev_command(command="devenv .", should_wait=False)
 
     def __run_cmd(command, should_wait):
         if should_wait:
@@ -257,17 +252,19 @@ def main():
     cmake_runner = CMakeRunner()
 
     if args.should_open():
-        runner.run_dev_command(command="devenv .", should_wait=False)
+        runner.run_visual_studio()
         return
 
     if args.should_clean():
-        clean_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode())
-        runner.run_dev_command(cmake_runner.get_fresh_cmd(clean_preset, args.get_graphics_api()))
+        clean_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode(),
+                                                          args.get_graphics_api())
+        runner.run_dev_command(cmake_runner.get_fresh_cmd(clean_preset))
         return
 
     if args.should_generate():
-        conf_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode())
-        runner.run_dev_command(cmake_runner.get_generate_cmd(conf_preset, args.get_graphics_api()))
+        conf_preset = cmake_presets.get_configure_preset(platform_os, args.get_build_mode(),
+                                                         args.get_graphics_api())
+        runner.run_dev_command(cmake_runner.get_generate_cmd(conf_preset))
 
     if args.should_build():
         build_preset = cmake_presets.get_build_preset(platform_os, args.get_build_mode())

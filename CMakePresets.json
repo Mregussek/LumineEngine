@@ -7,11 +7,10 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-cl-win64-release",
+      "name": "win64_base",
+      "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_STANDARD": "17",
         "CMAKE_C_STANDARD_REQUIRED": true,
         "CMAKE_CXX_STANDARD": "23",
@@ -19,42 +18,74 @@
         "CMAKE_CXX_COMPILER": "cl",
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_MAKE_PROGRAM": "${sourceDir}/cmake/ninja_win_v1.12.1/ninja.exe",
-        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
         "CMAKE_CXX_FLAGS": "/utf-8 /EHsc /D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 /D_CRT_SECURE_NO_WARNINGS=1"
       }
     },
     {
-      "name": "ninja-cl-win64-debug",
-      "generator": "Ninja",
+      "name": "win64_release",
+      "inherits": "win64_base",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release"
+      }
+    },
+    {
+      "name": "win64_debug",
+      "inherits": "win64_base",
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_DEBUG_POSTFIX": "_d",
-        "CMAKE_C_STANDARD": "17",
-        "CMAKE_C_STANDARD_REQUIRED": true,
-        "CMAKE_CXX_STANDARD": "23",
-        "CMAKE_CXX_STANDARD_REQUIRED": true,
-        "CMAKE_CXX_COMPILER": "cl",
-        "CMAKE_C_COMPILER": "cl",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/cmake/ninja_win_v1.12.1/ninja.exe",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
-        "CMAKE_CXX_FLAGS": "/utf-8 /EHsc /D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 /D_CRT_SECURE_NO_WARNINGS=1"
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
+      }
+    },
+    {
+      "name": "vulkan_win64_release",
+      "inherits": "win64_release",
+      "cacheVariables": {
+        "LUMINE_USE_VULKAN": "1",
+        "LUMINE_USE_DIRECTX12": "0"
+      }
+    },
+    {
+      "name": "vulkan_win64_debug",
+      "inherits": "win64_debug",
+      "cacheVariables": {
+        "LUMINE_USE_VULKAN": "1",
+        "LUMINE_USE_DIRECTX12": "0"
+      }
+    },
+    {
+      "name": "dx12_win64_release",
+      "inherits": "win64_release",
+      "cacheVariables": {
+        "LUMINE_USE_VULKAN": "0",
+        "LUMINE_USE_DIRECTX12": "1"
+      }
+    },
+    {
+      "name": "dx12_win64_debug",
+      "inherits": "win64_debug",
+      "cacheVariables": {
+        "LUMINE_USE_VULKAN": "0",
+        "LUMINE_USE_DIRECTX12": "1"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "ninja-cl-win64-release",
-      "configurePreset": "ninja-cl-win64-release",
+      "name": "win64_release",
+      "configurePreset": "win64_release",
       "configuration": "Release"
     },
     {
-      "name": "ninja-cl-win64-debug",
-      "configurePreset": "ninja-cl-win64-debug",
+      "name": "win64_debug",
+      "configurePreset": "win64_debug",
       "configuration": "Debug"
     }
   ]

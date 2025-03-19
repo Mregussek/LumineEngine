@@ -6,15 +6,19 @@
     #define LUMINE_USE_DIRECTX12 0
 #endif
 
+import ToolsFactory;
+import Window;
+
 import GraphicsFactory;
 import VulkanFactory;
 import DX12Factory;
 #include <memory>
 
+using namespace lumine;
 using namespace lumine::graphics;
 
 
-constexpr std::unique_ptr<GraphicsFactory> CreateFactory()
+constexpr std::unique_ptr<GraphicsFactory> CreateGraphicsFactory()
 {
     if constexpr (LUMINE_USE_DIRECTX12)
     {
@@ -27,6 +31,12 @@ constexpr std::unique_ptr<GraphicsFactory> CreateFactory()
 
 int main()
 {
-    std::unique_ptr<GraphicsFactory> pGraphicsFactory = CreateFactory();
+    std::unique_ptr<ToolsFactory> pToolsFactory = std::make_unique<ToolsFactory>();
+    pToolsFactory->Initialize();
+
+    std::unique_ptr<Window> pWindow = pToolsFactory->GetWindow();
+    pWindow->Initialize();
+
+    std::unique_ptr<GraphicsFactory> pGraphicsFactory = CreateGraphicsFactory();
     pGraphicsFactory->Initialize();
 }
