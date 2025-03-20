@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import subprocess
 import argparse
@@ -53,7 +54,8 @@ class ArgParser:
         parser.add_argument('--clean', action='store_true',
                             help='Cleans the build project (--graphics flag dependent)')
         parser.add_argument('--run', action='store_true', help='Runs the sandbox')
-        parser.add_argument('--open', action='store_true', help='Opens the project in VS')
+        parser.add_argument('--open', action='store_true',
+                            help='Opens the project in IDE (Visual Studio)')
         self.__args = parser.parse_args()
 
     def should_generate(self):

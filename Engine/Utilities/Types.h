@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 
 namespace lumine
 {
@@ -37,5 +39,11 @@ static_assert(sizeof(f64) == 8, "f64 does not match 64 bits");
 
 static_assert(sizeof(b8) == 1, "b8 does not match 8 bits");
 static_assert(sizeof(b32) == 4, "b32 does not match 32 bits");
+
+enum class ErrorStatus
+{
+	OK = 0,
+	CREATE_FAILED
+};
 
 }

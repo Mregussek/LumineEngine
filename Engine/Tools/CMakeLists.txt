@@ -29,13 +29,15 @@ target_sources(LumineTools
         FILE_SET CXX_MODULES FILES
             ${TOOLS_MODULES}
     PRIVATE
+        ${LUMINE_UTIL_HEADERS}
         ${TOOLS_SOURCES}
 )
 target_include_directories(LumineTools
     PUBLIC
+        ${LUMINE_UTIL_INCLUDE_DIR}
+    PRIVATE
         ${SPDLOG_INCLUDE_DIR}
         ${CROSSWINDOW_INCLUDE_DIR}
-    PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(LumineTools PRIVATE spdlog::spdlog CrossWindow)

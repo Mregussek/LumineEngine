@@ -25,9 +25,12 @@ target_sources(LumineGraphics
         FILE_SET CXX_MODULES FILES
             ${GRAPHICS_MODULES}
     PRIVATE
+        ${LUMINE_UTIL_HEADERS}
         ${GRAPHICS_SOURCES}
 )
 target_include_directories(LumineGraphics
+    PUBLIC
+        ${LUMINE_UTIL_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${VULKAN_SDK}/include
