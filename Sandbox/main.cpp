@@ -34,8 +34,6 @@ int main()
 	ToolsFactory toolsFactory{};
 	toolsFactory.Initialize();
 
-	std::unique_ptr<Window> pWindow = toolsFactory.GetWindow();
-
 	WindowDescription windowDesc{};
 	windowDesc.width = 1600;
 	windowDesc.height = 900;
@@ -43,6 +41,7 @@ int main()
 	windowDesc.title = "LumineSandbox";
 	windowDesc.resizable = true;
 
+	std::unique_ptr<Window> pWindow = toolsFactory.GetWindow();
 	pWindow->Create(windowDesc);
 
 	std::unique_ptr<GraphicsFactory> pGraphicsFactory = CreateGraphicsFactory();
@@ -63,6 +62,4 @@ int main()
 			}
 		}
 	}
-
-	pWindow->Close();
 }
