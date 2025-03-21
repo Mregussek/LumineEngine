@@ -2,6 +2,7 @@
 module;
 
 #include "Types.h"
+#include <string>
 import WindowEvent;
 
 export module Window;
@@ -15,9 +16,9 @@ struct WindowDescription
 	u32 width{ 1600 };
 	u32 height{ 900 };
 
-	const char* nameId{ "" };
-	const char* title{ "" };
-	const char* iconPath{ "" };
+	std::string nameId{ "" };
+	std::string title{ "" };
+	std::string iconPath{ "" };
 
 	bool resizable{ false };
 	bool minimizable{ false };

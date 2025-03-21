@@ -33,6 +33,7 @@ private:
 	xwin::Window m_XHandle{};
 	xwin::EventQueue m_XEventQueue{};
 	std::vector<WindowEvent> m_Events{};
+	WindowDescription m_Desc{};
 	bool m_PendingEvents{ false };
 
 };

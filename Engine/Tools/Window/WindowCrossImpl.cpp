@@ -19,12 +19,17 @@ WindowCrossImpl::~WindowCrossImpl()
 
 ErrorStatus WindowCrossImpl::Create(const WindowDescription& description)
 {
+	m_Desc = description;
+
 	xwin::WindowDesc windowDesc;
-	windowDesc.name = std::string{ description.nameId };
-	windowDesc.title = std::string{ description.title };
+	windowDesc.name = m_Desc.nameId;
+	windowDesc.title = m_Desc.title;
+	windowDesc.iconPath = m_Desc.iconPath;
+	windowDesc.width = m_Desc.width;
+	windowDesc.height = m_Desc.height;
+	windowDesc.resizable = m_Desc.resizable;
+	windowDesc.minimizable = m_Desc.minimizable;
 	windowDesc.visible = true;
-	windowDesc.width = description.width;
-	windowDesc.height = description.height;
 
 	const bool created = m_XHandle.create(windowDesc, m_XEventQueue);
 	if (not created)
@@ -34,7 +39,7 @@ ErrorStatus WindowCrossImpl::Create(const WindowDescription& description)
 
 	m_Events.reserve(10);
 
-	TTRACE("Created");
+	TTRACE("Created, id: {} title: {} iconPath: {}", m_Desc.nameId, m_Desc.title, m_Desc.iconPath);
 	return ErrorStatus::OK;
 }
 

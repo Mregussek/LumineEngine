@@ -5,11 +5,14 @@ cmake_minimum_required(VERSION 3.31)
 
 include(cmake/modules.cmake)
 
-# ------------------- Project
+# ------------------- Build Media / Resources Setup
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(LUMINE_MEDIA_FILES
+    ${CMAKE_SOURCE_DIR}/Media/lumine.ico
+    CACHE STRING "All Lumine Media Files"
+)
+
+# ------------------- Project
 
 project(LumineEngine LANGUAGES CXX)
 
