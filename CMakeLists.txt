@@ -9,6 +9,7 @@ include(cmake/modules.cmake)
 
 set(LUMINE_MEDIA_FILES
     ${CMAKE_SOURCE_DIR}/Media/lumine.ico
+    ${CMAKE_SOURCE_DIR}/Media/lumine.png
     CACHE STRING "All Lumine Media Files"
 )
 

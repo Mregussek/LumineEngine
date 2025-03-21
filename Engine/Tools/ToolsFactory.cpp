@@ -1,7 +1,8 @@
 
 module;
 
-import WindowCrossImpl;
+import WindowImplCross;
+import WindowImplGlfw;
 #include "TLogger.h"
 #include <memory>
 
@@ -30,7 +31,7 @@ void ToolsFactory::Close()
 
 std::unique_ptr<Window> ToolsFactory::GetWindow() const
 {
-	return std::make_unique<WindowCrossImpl>();
+	return std::make_unique<WindowImplGlfw>();
 }
 
 }

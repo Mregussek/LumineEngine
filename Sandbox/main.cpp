@@ -36,12 +36,7 @@ int main()
 	ToolsFactory toolsFactory{};
 	toolsFactory.Initialize();
 
-	Path iconPath( { "Media", "lumine.ico" } );
-	if (not Path::Exists(iconPath))
-	{
-		std::cout << "Not exist: " << iconPath.GetString() << '\n';
-		return 1;
-	}
+	Path iconPath( { "Media", "lumine.png" } );
 
 	WindowDescription windowDesc{};
 	windowDesc.width = 1600;

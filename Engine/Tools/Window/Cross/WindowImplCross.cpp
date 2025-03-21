@@ -5,19 +5,19 @@ module;
 #include "CrossWindow/CrossWindow.h"
 import WindowEvent;
 
-module WindowCrossImpl;
+module WindowImplCross;
 
 
 namespace lumine
 {
 
-WindowCrossImpl::~WindowCrossImpl()
+WindowImplCross::~WindowImplCross()
 {
 	Destroy();
 }
 
 
-ErrorStatus WindowCrossImpl::Create(const WindowDescription& description)
+ErrorStatus WindowImplCross::Create(const WindowDescription& description)
 {
 	m_Desc = description;
 
@@ -44,21 +44,21 @@ ErrorStatus WindowCrossImpl::Create(const WindowDescription& description)
 }
 
 
-void WindowCrossImpl::Destroy()
+void WindowImplCross::Destroy()
 {
 	Close();
 	TTRACE("Destroyed");
 }
 
 
-void WindowCrossImpl::Close()
+void WindowImplCross::Close()
 {
 	m_XHandle.close();
 	TTRACE("Closed");
 }
 
 
-void WindowCrossImpl::Update()
+void WindowImplCross::Update()
 {
 	m_XEventQueue.update();
 
@@ -88,13 +88,13 @@ void WindowCrossImpl::Update()
 }
 
 
-bool WindowCrossImpl::HasPendingEvents() const
+bool WindowImplCross::HasPendingEvents() const
 {
 	return not m_Events.empty();
 }
 
 
-WindowEvent WindowCrossImpl::GetNextEvent()
+WindowEvent WindowImplCross::GetNextEvent()
 {
 	WindowEvent event = m_Events.back();
 	m_Events.pop_back();

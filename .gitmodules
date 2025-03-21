@@ -7,3 +7,9 @@
 [submodule "Engine/Tools/3rdparty/crosswindow"]
 	path = Engine/Tools/3rdparty/crosswindow
 	url = https://github.com/alaingalvan/crosswindow.git
+[submodule "Engine/Tools/3rdparty/glfw"]
+	path = Engine/Tools/3rdparty/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "Engine/Tools/3rdparty/stb"]
+	path = Engine/Tools/3rdparty/stb
+	url = https://github.com/nothings/stb.git

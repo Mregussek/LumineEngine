@@ -30,7 +30,8 @@ struct EventData
 
 class WindowEvent
 {
-	friend class WindowCrossImpl;
+	friend class WindowImplCross;
+	friend class WindowImplGlfw;
 
 public:
 

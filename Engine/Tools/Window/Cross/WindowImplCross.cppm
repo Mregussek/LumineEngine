@@ -6,16 +6,16 @@ import WindowEvent;
 #include "CrossWindow/CrossWindow.h"
 #include <vector>
 
-export module WindowCrossImpl;
+export module WindowImplCross;
 
 
 export namespace lumine
 {
 
-class WindowCrossImpl : public Window {
+class WindowImplCross : public Window {
 public:
 
-	~WindowCrossImpl();
+	~WindowImplCross();
 
 public:
 

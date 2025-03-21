@@ -43,7 +43,7 @@ static_assert(sizeof(b32) == 4, "b32 does not match 32 bits");
 enum class ErrorStatus
 {
 	OK = 0,
-	CREATE_FAILED
+	CREATE_FAILED = 1
 };
 
 }

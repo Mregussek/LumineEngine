@@ -55,6 +55,12 @@ bool Path::Exists(const Path& path)
 }
 
 
+bool Path::Exists(const char* path)
+{
+    return std::filesystem::exists(path);
+}
+
+
 void Path::Append(const char* appendElem)
 {
     Append(*this, appendElem);

@@ -27,6 +27,7 @@ public:
 
 	[[nodiscard]] bool Exists() const;
 	[[nodiscard]] static bool Exists(const Path& path);
+	[[nodiscard]] static bool Exists(const char* path);
 
 	[[nodiscard]] static Path GetExecutableFilePath();
 	[[nodiscard]] static Path GetExecutablePath();
