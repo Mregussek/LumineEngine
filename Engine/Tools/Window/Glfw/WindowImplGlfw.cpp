@@ -1,11 +1,11 @@
 
 module;
 
-#include "Types.h"
-#include "TLogger.h"
 import WindowEvent;
 import Path;
 
+#include "Types.h"
+#include "TLogger.h"
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
@@ -33,17 +33,18 @@ public:
 
 	bool Load(const char* path)
 	{
+		m_Loaded = false;
 		if (not Path::Exists(Path{ path }))
 		{
 			TERROR("Not existing icon path: {}", path);
-			return false;
+			return m_Loaded;
 		}
 
 		int width{ 0 }, height{ 0 };
 		m_pPixels = stbi_load(path, &width, &height, nullptr, 4);
 		if (not m_pPixels) {
 			TERROR("Failed to load window icon! path: {} width {} height {}", path, width, height);
-			return false;
+			return m_Loaded;
 		}
 
 		m_GlfwImage.width = width;
@@ -52,6 +53,7 @@ public:
 
 		m_Loaded = true;
 		TTRACE("Loaded window icon: {}", path);
+		return m_Loaded;
 	}
 
 	GLFWimage* GetData() { return &m_GlfwImage; }

@@ -1,6 +1,8 @@
 
 module;
 
+#include <memory>
+
 export module GraphicsFactory;
 
 
@@ -19,6 +21,7 @@ public:
 
 private:
 
+    std::unique_ptr<GraphicsFactory> m_pConcreteFactory{};
     bool m_Initialized{ false };
 
 };

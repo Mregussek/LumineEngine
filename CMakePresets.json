@@ -32,7 +32,8 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release"
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
+        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "None"
       }
     },
     {
@@ -44,7 +45,9 @@
         "CMAKE_DEBUG_POSTFIX": "_d",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
+        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
+        "CMAKE_PDB_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
       }
     },
     {

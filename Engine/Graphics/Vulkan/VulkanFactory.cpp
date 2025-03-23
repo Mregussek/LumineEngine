@@ -16,14 +16,12 @@ VulkanFactory::~VulkanFactory()
 
 void VulkanFactory::Initialize()
 {
-	GraphicsFactory::Initialize();
 	GTRACE("Initialized");
 }
 
 void VulkanFactory::Close()
 {
 	GTRACE("Closed");
-	GraphicsFactory::Close();
 }
 
 }

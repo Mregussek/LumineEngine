@@ -13,6 +13,8 @@ target_compile_definitions(LumineSandbox
     PRIVATE
         LUMINE_USE_DIRECTX12=${LUMINE_USE_DIRECTX12}
         LUMINE_USE_VULKAN=${LUMINE_USE_VULKAN}
+        LUMINE_WIN64=${LUMINE_WIN64}
+        LUMINE_LINUX=${LUMINE_LINUX}
 )
 
 # Iterate over the list of media files

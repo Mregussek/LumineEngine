@@ -22,7 +22,7 @@ public:
 
 public:
 
-    std::unique_ptr<Window> GetWindow() const;
+    std::shared_ptr<Window> GetWindow() const;
 
 };
 

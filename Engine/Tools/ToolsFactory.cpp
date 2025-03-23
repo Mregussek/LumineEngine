@@ -17,6 +17,7 @@ ToolsFactory::~ToolsFactory()
 	Close();
 }
 
+
 void ToolsFactory::Initialize()
 {
 	TCREATE_LOGGER();
@@ -24,14 +25,16 @@ void ToolsFactory::Initialize()
 	TTRACE("Initialized");
 }
 
+
 void ToolsFactory::Close()
 {
 	TTRACE("Closed");
 }
 
-std::unique_ptr<Window> ToolsFactory::GetWindow() const
+
+std::shared_ptr<Window> ToolsFactory::GetWindow() const
 {
-	return std::make_unique<WindowImplGlfw>();
+	return std::make_shared<WindowImplGlfw>();
 }
 
 }

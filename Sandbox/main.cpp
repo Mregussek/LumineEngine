@@ -1,35 +1,14 @@
 
-#if LUMINE_USE_DIRECTX12
-	#define LUMINE_USE_DIRECTX12 1
-#endif
-#if LUMINE_USE_VULKAN
-	#define LUMINE_USE_DIRECTX12 0
-#endif
-
 import ToolsFactory;
 import Window;
 import Path;
 
 import GraphicsFactory;
-import VulkanFactory;
-import DX12Factory;
 #include <memory>
 #include <iostream>
 
 using namespace lumine;
 using namespace lumine::graphics;
-
-
-constexpr std::unique_ptr<GraphicsFactory> CreateGraphicsFactory()
-{
-	if constexpr (LUMINE_USE_DIRECTX12)
-	{
-		return std::make_unique<DX12Factory>();
-	}
-
-	// Assume we want to use Vulkan | LUMINE_USE_VULKAN
-	return std::make_unique<VulkanFactory>();
-}
 
 int main()
 {
@@ -46,11 +25,11 @@ int main()
 	windowDesc.iconPath = iconPath;
 	windowDesc.resizable = true;
 
-	std::unique_ptr<Window> pWindow = toolsFactory.GetWindow();
+	std::shared_ptr<Window> pWindow = toolsFactory.GetWindow();
 	pWindow->Create(windowDesc);
 
-	std::unique_ptr<GraphicsFactory> pGraphicsFactory = CreateGraphicsFactory();
-	pGraphicsFactory->Initialize();
+	GraphicsFactory graphicsFactory{};
+	graphicsFactory.Initialize();
 
 	bool isRunning = true;
 	while (isRunning)

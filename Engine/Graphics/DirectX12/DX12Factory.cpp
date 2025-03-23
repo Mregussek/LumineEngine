@@ -16,14 +16,12 @@ DX12Factory::~DX12Factory()
 
 void DX12Factory::Initialize()
 {
-	GraphicsFactory::Initialize();
 	GTRACE("Initialized");
 }
 
 void DX12Factory::Close()
 {
 	GTRACE("Closed");
-	GraphicsFactory::Close();
 }
 
 }
