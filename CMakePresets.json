@@ -11,6 +11,8 @@
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
+        "CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API": "Yes",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
         "CMAKE_C_STANDARD": "17",
         "CMAKE_C_STANDARD_REQUIRED": true,
         "CMAKE_CXX_STANDARD": "23",
@@ -33,7 +35,8 @@
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
         "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
-        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "None"
+        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "None",
+        "LUMINE_CMAKE_USE_CLANG_TIDY": false
       }
     },
     {
@@ -47,7 +50,8 @@
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
         "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
         "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
-        "CMAKE_PDB_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
+        "CMAKE_PDB_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
+        "LUMINE_CMAKE_USE_CLANG_TIDY": true
       }
     },
     {
