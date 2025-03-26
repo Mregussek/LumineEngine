@@ -1,73 +1,32 @@
-﻿
 # spdlog
 
-set(SPDLOG_3RDPARTY_DIR "3rdparty/spdlog")
-set(SPDLOG_INCLUDE_DIR ${SPDLOG_INSTALL_DIR}/include)
+set(SPDLOG_3RDPARTY_DIR 3rdparty/spdlog)
+set(SPDLOG_INCLUDE_DIR_LUMINE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/spdlog/include CACHE STRING "spdlog Lumine Include Dir")
 add_subdirectory(${SPDLOG_3RDPARTY_DIR})
+message(STATUS "--- SPDLOG_INCLUDE_DIR_LUMINE: ${SPDLOG_INCLUDE_DIR_LUMINE}")
 
 # crosswindow
 
-set(CROSSWINDOW_3RDPARTY_DIR "3rdparty/crosswindow")
-set(CROSSWINDOW_INCLUDE_DIR ${CROSSWINDOW_3RDPARTY_DIR}/src)
+set(CROSSWINDOW_3RDPARTY_DIR 3rdparty/crosswindow)
+set(CROSSWINDOW_INCLUDE_DIR_LUMINE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/crosswindow/src CACHE STRING "CrossWindow Lumine Include Dir")
 add_subdirectory(${CROSSWINDOW_3RDPARTY_DIR})
+message(STATUS "--- CROSSWINDOW_INCLUDE_DIR_LUMINE: ${CROSSWINDOW_INCLUDE_DIR_LUMINE}")
 
 # glfw
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only")
 set(GLFW_INSTALL OFF CACHE BOOL  "GLFW lib only")
-set(GLFW_3RDPARTY_DIR "3rdparty/glfw")
-set(GLFW_INCLUDE_DIR ${GLFW_3RDPARTY_DIR}/include)
+set(GLFW_3RDPARTY_DIR 3rdparty/glfw)
+set(GLFW_INCLUDE_DIR_LUMINE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glfw/include CACHE STRING "Glfw Lumine Include Dir")
 add_subdirectory(${GLFW_3RDPARTY_DIR})
+message(STATUS "--- GLFW_INCLUDE_DIR_LUMINE: ${GLFW_INCLUDE_DIR_LUMINE}")
 
 # stb
 
-set(STB_3RDPARTY_DIR "3rdparty/stb")
-set(STB_INCLUDE_DIR ${STB_3RDPARTY_DIR})
+set(STB_3RDPARTY_DIR 3rdparty/stb)
+set(STB_INCLUDE_DIR_LUMINE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/stb CACHE STRING "stb Lumine Include Dir")
+message(STATUS "--- STB_INCLUDE_DIR_LUMINE: ${STB_INCLUDE_DIR_LUMINE}")
 
-# Target Library
+# ------------------- ToolsSRC
 
-file(GLOB_RECURSE TOOLS_SOURCES CONFIGURE_DEPENDS
-    *.cpp
-    *.h
-)
-list(FILTER TOOLS_SOURCES EXCLUDE REGEX "3rdparty/.*" )
-
-file(GLOB_RECURSE TOOLS_MODULES CONFIGURE_DEPENDS
-    *.cppm
-)
-
-add_library(LumineTools STATIC)
-target_sources(LumineTools
-    PUBLIC
-        FILE_SET CXX_MODULES FILES
-            ${TOOLS_MODULES}
-    PRIVATE
-        ${LUMINE_UTIL_HEADERS}
-        ${TOOLS_SOURCES}
-)
-target_include_directories(LumineTools
-    PUBLIC
-        ${LUMINE_UTIL_INCLUDE_DIR}
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${SPDLOG_INCLUDE_DIR}
-        ${CROSSWINDOW_INCLUDE_DIR}
-        ${GLFW_INCLUDE_DIR}
-        ${STB_INCLUDE_DIR}
-)
-target_link_libraries(LumineTools
-    PRIVATE
-        spdlog::spdlog
-        CrossWindow
-        glfw
-)
-target_compile_features(LumineTools PUBLIC cxx_std_23)
-target_compile_definitions(LumineTools
-    PRIVATE
-        LUMINE_USE_DIRECTX12=${LUMINE_USE_DIRECTX12}
-        LUMINE_USE_VULKAN=${LUMINE_USE_VULKAN}
-        LUMINE_WIN64=${LUMINE_WIN64}
-        LUMINE_LINUX=${LUMINE_LINUX}
-        SPDLOG_COMPILED_LIB
-        STB_IMAGE_IMPLEMENTATION
-)
+add_subdirectory(src)
