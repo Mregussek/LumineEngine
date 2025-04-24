@@ -10,7 +10,8 @@ file(GLOB_RECURSE GRAPHICS_MODULES CONFIGURE_DEPENDS
     *.cppm
 )
 
-add_library(LumineGraphics)
+add_library(LumineGraphics STATIC)
+LumineSetLocalOptions(LumineGraphics)
 target_sources(LumineGraphics
     PUBLIC
         FILE_SET CXX_MODULES FILES
@@ -20,15 +21,13 @@ target_sources(LumineGraphics
         ${GRAPHICS_SOURCES}
 )
 target_include_directories(LumineGraphics
-    PUBLIC
-        ${LUMINE_UTIL_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${LUMINE_UTIL_INCLUDE_DIR}
         ${VULKAN_INCLUDE_DIR_LUMINE}
-        ${VOLK_INCLUDE_DIR_LUMINE}
 )
 target_link_libraries(LumineGraphics
-    PUBLIC
+    PRIVATE
         LumineTools
         volk_headers
 )

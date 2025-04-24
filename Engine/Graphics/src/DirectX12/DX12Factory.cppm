@@ -1,9 +1,9 @@
 
 module;
 
-import GraphicsFactory;
-
 export module DX12Factory;
+
+import GraphicsFactory;
 
 
 export namespace lumine::graphics

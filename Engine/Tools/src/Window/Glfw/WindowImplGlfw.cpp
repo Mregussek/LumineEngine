@@ -1,15 +1,15 @@
 
 module;
 
-import WindowEvent;
-import Path;
-
 #include "Types.h"
 #include "TLogger.h"
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
 module WindowImplGlfw;
+
+import WindowEvent;
+import Path;
 
 
 namespace lumine

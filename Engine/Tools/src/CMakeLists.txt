@@ -11,6 +11,7 @@ file(GLOB_RECURSE TOOLS_MODULES CONFIGURE_DEPENDS
 )
 
 add_library(LumineTools STATIC)
+LumineSetLocalOptions(LumineTools)
 target_sources(LumineTools
     PUBLIC
         FILE_SET CXX_MODULES FILES
@@ -20,13 +21,9 @@ target_sources(LumineTools
         ${TOOLS_SOURCES}
 )
 target_include_directories(LumineTools
-    PUBLIC
-        ${LUMINE_UTIL_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${SPDLOG_INCLUDE_DIR_LUMINE}
-        ${CROSSWINDOW_INCLUDE_DIR_LUMINE}
-        ${GLFW_INCLUDE_DIR_LUMINE}
+        ${LUMINE_UTIL_INCLUDE_DIR}
         ${STB_INCLUDE_DIR_LUMINE}
 )
 target_link_libraries(LumineTools
@@ -42,6 +39,11 @@ target_compile_definitions(LumineTools
         LUMINE_USE_VULKAN=${LUMINE_USE_VULKAN}
         LUMINE_WIN64=${LUMINE_WIN64}
         LUMINE_LINUX=${LUMINE_LINUX}
-        SPDLOG_COMPILED_LIB
         STB_IMAGE_IMPLEMENTATION
+)
+set_target_properties(LumineTools
+    PROPERTIES
+        VERSION ${PROJECT_VERSION}
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN YES
 )

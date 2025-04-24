@@ -1,12 +1,13 @@
 
 module;
 
-import Window;
-import WindowEvent;
 #include "CrossWindow/CrossWindow.h"
 #include <vector>
 
 export module WindowImplCross;
+
+import Window;
+import WindowEvent;
 
 
 export namespace lumine

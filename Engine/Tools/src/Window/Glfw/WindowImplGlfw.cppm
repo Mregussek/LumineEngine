@@ -1,15 +1,15 @@
 
 module;
 
-import Window;
-import WindowEvent;
-
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <memory>
 #include <vector>
 
 export module WindowImplGlfw;
+
+import Window;
+import WindowEvent;
 
 
 export namespace lumine

@@ -3,9 +3,10 @@ module;
 
 #include "TLogger.h"
 #include "CrossWindow/CrossWindow.h"
-import WindowEvent;
 
 module WindowImplCross;
+
+import WindowEvent;
 
 
 namespace lumine

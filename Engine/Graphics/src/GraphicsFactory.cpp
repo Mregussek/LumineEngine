@@ -3,10 +3,11 @@ module;
 
 #include "GLogger.h"
 #include <memory>
-import VulkanFactory;
-import DX12Factory;
 
 module GraphicsFactory;
+
+import VulkanFactory;
+import DX12Factory;
 
 
 namespace lumine::graphics

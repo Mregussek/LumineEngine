@@ -1,9 +1,9 @@
 
 module;
 
-import GraphicsFactory;
-
 export module VulkanFactory;
+
+import GraphicsFactory;
 
 
 export namespace lumine::graphics

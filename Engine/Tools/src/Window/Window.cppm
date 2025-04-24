@@ -3,9 +3,10 @@ module;
 
 #include "Types.h"
 #include <string>
-import WindowEvent;
 
 export module Window;
+
+import WindowEvent;
 
 
 export namespace lumine

@@ -1,12 +1,13 @@
 
 module;
 
-import WindowImplCross;
-import WindowImplGlfw;
 #include "TLogger.h"
 #include <memory>
 
 module ToolsFactory;
+
+import WindowImplCross;
+import WindowImplGlfw;
 
 
 namespace lumine

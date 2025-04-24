@@ -1,10 +1,11 @@
 
 module;
 
-import Window;
 #include <memory>
 
 export module ToolsFactory;
+
+import Window;
 
 
 export namespace lumine
