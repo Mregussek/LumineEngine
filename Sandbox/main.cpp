@@ -10,40 +10,67 @@ import GraphicsFactory;
 using namespace lumine;
 using namespace lumine::graphics;
 
-int main()
+
+class SandboxBase
 {
-	ToolsFactory toolsFactory{};
-	toolsFactory.Initialize();
+public:
 
-	Path iconPath( { "Media", "lumine.png" } );
-
-	WindowDescription windowDesc{};
-	windowDesc.width = 1600;
-	windowDesc.height = 900;
-	windowDesc.nameId = "LumineSandboxID";
-	windowDesc.title = "LumineSandbox";
-	windowDesc.iconPath = iconPath;
-	windowDesc.resizable = true;
-
-	std::shared_ptr<Window> pWindow = toolsFactory.GetWindow();
-	pWindow->Create(windowDesc);
-
-	GraphicsFactory graphicsFactory{};
-	graphicsFactory.Initialize();
-
-	bool isRunning = true;
-	while (isRunning)
+	void Initialize()
 	{
-		pWindow->Update();
+		m_ToolsFactory.Initialize();
 
-		while (pWindow->HasPendingEvents())
+		Path iconPath({ "Media", "lumine.png" });
+		WindowDescription windowDesc{
+			.width = 1600,
+			.height = 900,
+			.nameId = "LumineSandboxID",
+			.title = "LumineSandbox",
+			.iconPath = iconPath,
+			.resizable = false,
+			.minimizable = false
+		};
+		m_pWindow = m_ToolsFactory.CreateWindow();
+		m_pWindow->Create(windowDesc);
+
+		m_GraphicsFactory.Initialize();
+	}
+
+	void Run()
+	{
+		bool isRunning = true;
+		while (isRunning)
 		{
-			WindowEvent windowEvent = pWindow->GetNextEvent();
+			m_pWindow->Update();
 
-			if (windowEvent.IsClose())
+			while (m_pWindow->HasPendingEvents())
 			{
-				isRunning = false;
+				WindowEvent windowEvent = m_pWindow->GetNextEvent();
+
+				if (windowEvent.IsClose())
+				{
+					isRunning = false;
+				}
 			}
 		}
 	}
+
+	void Close()
+	{
+
+	}
+
+private:
+
+	ToolsFactory m_ToolsFactory{};
+	GraphicsFactory m_GraphicsFactory{};
+	std::shared_ptr<Window> m_pWindow{ nullptr };
+
+};
+
+
+int main()
+{
+	SandboxBase sandbox{};
+	sandbox.Initialize();
+	sandbox.Run();
 }
