@@ -1,14 +1,10 @@
 
+add_subdirectory(Backend)
+
 # Target Library
 
-file(GLOB_RECURSE GRAPHICS_SOURCES CONFIGURE_DEPENDS
-    *.cpp
-    *.h
-)
-
-file(GLOB_RECURSE GRAPHICS_MODULES CONFIGURE_DEPENDS
-    *.cppm
-)
+set(GRAPHICS_SOURCES GLogger.h GraphicsFactory.cpp)
+set(GRAPHICS_MODULES GraphicsFactory.cppm BackendFactory.cppm)
 
 add_library(LumineGraphics STATIC)
 LumineSetLocalOptions(LumineGraphics)
@@ -24,12 +20,6 @@ target_include_directories(LumineGraphics
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${LUMINE_UTIL_INCLUDE_DIR}
-        ${VULKAN_INCLUDE_DIR_LUMINE}
-)
-target_link_libraries(LumineGraphics
-    PRIVATE
-        LumineTools
-        volk_headers
 )
 target_compile_features(LumineGraphics PUBLIC cxx_std_23)
 target_compile_definitions(LumineGraphics
@@ -39,3 +29,22 @@ target_compile_definitions(LumineGraphics
         LUMINE_WIN64=${LUMINE_WIN64}
         LUMINE_LINUX=${LUMINE_LINUX}
 )
+
+target_link_libraries(LumineGraphics
+    PRIVATE
+        LumineTools
+)
+
+if(${LUMINE_WIN64})
+    target_link_libraries(LumineGraphics
+        PRIVATE
+            Lumine_Vulkan
+            Lumine_DirectX12
+    )
+elseif(${LUMINE_LINUX})
+    target_link_libraries(LumineGraphics
+        PRIVATE
+            Lumine_Vulkan
+    )
+endif()
+

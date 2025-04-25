@@ -1,22 +1,22 @@
 
 module;
 
-#include "GLogger.h"
+#include "LoggerDX12.h"
 
 module ContextDX12;
 
 
-namespace lumine::graphics
+namespace lumine::graphics::dx12
 {
 
 void ContextDX12::Create()
 {
-	GTRACE("Created");
+	DXTRACE("Created");
 }
 
 void ContextDX12::Destroy()
 {
-	GTRACE("Destroyed");
+	DXTRACE("Destroyed");
 }
 
 }

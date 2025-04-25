@@ -6,23 +6,22 @@ module;
 
 module GraphicsFactory;
 
-import VulkanFactory;
-import DX12Factory;
+import BackendFactory;
 
 
 namespace lumine::graphics
 {
 
-constexpr std::unique_ptr<GraphicsFactory> CreateConcreteFactory()
+constexpr std::unique_ptr<BackendFactory> CreateBackendFactory()
 {
-	if constexpr (LUMINE_USE_DIRECTX12)
+	if constexpr (LUMINE_WIN64 and LUMINE_USE_DIRECTX12)
 	{
-		return std::make_unique<DX12Factory>();
+		return std::make_unique<FactoryDX12>();
 	}
 	else
 	{
 		// Assume we want to use Vulkan | LUMINE_USE_VULKAN
-		return std::make_unique<VulkanFactory>();
+		return std::make_unique<FactoryVk>();
 	}
 }
 
@@ -41,8 +40,8 @@ void GraphicsFactory::Initialize()
 {
 	GCREATE_LOGGER();
 
-	m_pConcreteFactory = CreateConcreteFactory();
-	m_pConcreteFactory->Initialize();
+	m_pBackendFactory = CreateBackendFactory();
+	m_pBackendFactory->Initialize();
 
 	m_Initialized = true;
 	GTRACE("Initialized");
@@ -55,7 +54,7 @@ void GraphicsFactory::Close()
 		return;
 	}
 
-	m_pConcreteFactory->Close();
+	m_pBackendFactory->Close();
 	m_Initialized = false;
 	GTRACE("Closed");
 }

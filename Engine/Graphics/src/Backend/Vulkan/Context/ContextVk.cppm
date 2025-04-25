@@ -7,7 +7,7 @@ module;
 export module ContextVk;
 
 
-export namespace lumine::graphics
+export namespace lumine::graphics::vk
 {
 
 class ContextVk

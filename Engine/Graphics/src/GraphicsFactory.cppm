@@ -5,6 +5,8 @@ module;
 
 export module GraphicsFactory;
 
+import BackendFactory;
+
 
 export namespace lumine::graphics
 {
@@ -12,16 +14,16 @@ export namespace lumine::graphics
 class GraphicsFactory {
 public:
 
-    virtual ~GraphicsFactory();
+    ~GraphicsFactory();
 
 public:
 
-    virtual void Initialize();
-    virtual void Close();
+    void Initialize();
+    void Close();
 
 private:
 
-    std::unique_ptr<GraphicsFactory> m_pConcreteFactory{};
+    std::unique_ptr<BackendFactory> m_pBackendFactory{ nullptr };
     bool m_Initialized{ false };
 
 };

@@ -4,7 +4,7 @@ module;
 export module ContextDX12;
 
 
-export namespace lumine::graphics
+export namespace lumine::graphics::dx12
 {
 
 class ContextDX12

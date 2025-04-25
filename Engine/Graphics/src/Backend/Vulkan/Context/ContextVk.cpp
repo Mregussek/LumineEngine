@@ -2,23 +2,23 @@
 module;
 
 #include <volk.h>
-#include "GLogger.h"
+#include "LoggerVk.h"
 
 module ContextVk;
 
 
-namespace lumine::graphics
+namespace lumine::graphics::vk
 {
 
 void ContextVk::Create()
 {
 	VkResult result = volkInitialize();
-	GTRACE("Created");
+	VKTRACE("Created");
 }
 
 void ContextVk::Destroy()
 {
-	GTRACE("Destroyed");
+	VKTRACE("Destroyed");
 }
 
 }
