@@ -21,14 +21,14 @@ public:
 
 public:
 
-	virtual void Initialize() { }
-	virtual void Close() { }
+	virtual void Initialize() = 0;
+	virtual void Close() = 0;
 
 };
 
 
-template<typename T>
-class TBackendFactory : public BackendFactory
+template<typename TConcreteFactory>
+class BackendDerivedFactory : public BackendFactory
 {
 public:
 
@@ -37,15 +37,15 @@ public:
 
 private:
 
-	T m_Factory{};
+	TConcreteFactory m_Factory{};
 
 };
 
 
-typedef TBackendFactory<vk::FactoryVk> FactoryVk;
+typedef BackendDerivedFactory<vk::FactoryVk> FactoryVk;
 
 #if LUMINE_WIN64
-	typedef TBackendFactory<dx12::FactoryDX12> FactoryDX12;
+	typedef BackendDerivedFactory<dx12::FactoryDX12> FactoryDX12;
 #endif
 
 }
