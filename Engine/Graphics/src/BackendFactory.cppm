@@ -13,11 +13,11 @@ import FactoryVk;
 export namespace lumine::graphics
 {
 
-class BackendFactory
+class IBackendFactory
 {
 public:
 
-	virtual ~BackendFactory() = default;
+	virtual ~IBackendFactory() = default;
 
 public:
 
@@ -28,7 +28,7 @@ public:
 
 
 template<typename TConcreteFactory>
-class BackendDerivedFactory : public BackendFactory
+class BackendFactory : public IBackendFactory
 {
 public:
 
@@ -42,10 +42,10 @@ private:
 };
 
 
-typedef BackendDerivedFactory<vk::FactoryVk> FactoryVk;
+typedef BackendFactory<vk::FactoryVk> BackedFactoryVk;
 
 #if LUMINE_WIN64
-	typedef BackendDerivedFactory<dx12::FactoryDX12> FactoryDX12;
+	typedef BackendFactory<dx12::FactoryDX12> BackendFactoryDX12;
 #endif
 
 }

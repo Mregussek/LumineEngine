@@ -12,16 +12,16 @@ import BackendFactory;
 namespace lumine::graphics
 {
 
-constexpr std::unique_ptr<BackendFactory> CreateBackendFactory()
+constexpr std::unique_ptr<IBackendFactory> CreateBackendFactory()
 {
 	if constexpr (LUMINE_WIN64 and LUMINE_USE_DIRECTX12)
 	{
-		return std::make_unique<FactoryDX12>();
+		return std::make_unique<BackendFactoryDX12>();
 	}
 	else
 	{
 		// Assume we want to use Vulkan | LUMINE_USE_VULKAN
-		return std::make_unique<FactoryVk>();
+		return std::make_unique<BackedFactoryVk>();
 	}
 }
 

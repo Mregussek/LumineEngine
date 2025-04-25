@@ -22,7 +22,7 @@ namespace lumine
 class LoggerImpl
 {
 
-	enum class LogLevel : int
+	enum class ELogLevel : int
 	{
 		TRACE = 0,
 		DEBUG = 1,
@@ -36,16 +36,16 @@ public:
 
 	static void create(const char* loggerName);
 
-	LOGGERIMPL_FUNCTION_DEFINITION(trace, LogLevel::TRACE)
-	LOGGERIMPL_FUNCTION_DEFINITION(debug, LogLevel::DEBUG)
-	LOGGERIMPL_FUNCTION_DEFINITION(info, LogLevel::INFO)
-	LOGGERIMPL_FUNCTION_DEFINITION(warning, LogLevel::WARN)
-	LOGGERIMPL_FUNCTION_DEFINITION(error, LogLevel::ERR)
-	LOGGERIMPL_FUNCTION_DEFINITION(critical, LogLevel::CRIT)
+	LOGGERIMPL_FUNCTION_DEFINITION(trace, ELogLevel::TRACE)
+	LOGGERIMPL_FUNCTION_DEFINITION(debug, ELogLevel::DEBUG)
+	LOGGERIMPL_FUNCTION_DEFINITION(info, ELogLevel::INFO)
+	LOGGERIMPL_FUNCTION_DEFINITION(warning, ELogLevel::WARN)
+	LOGGERIMPL_FUNCTION_DEFINITION(error, ELogLevel::ERR)
+	LOGGERIMPL_FUNCTION_DEFINITION(critical, ELogLevel::CRIT)
 
 private:
 
-	static void log(const char* loggerName, const std::string& formattedMsg, LogLevel logLevel, const char* filename, int line, const char* functionName);
+	static void log(const char* loggerName, const std::string& formattedMsg, ELogLevel logLevel, const char* filename, int line, const char* functionName);
 
 };
 

@@ -23,7 +23,7 @@ public:
 
 private:
 
-    std::unique_ptr<BackendFactory> m_pBackendFactory{ nullptr };
+    std::unique_ptr<IBackendFactory> m_pBackendFactory{ nullptr };
     bool m_Initialized{ false };
 
 };

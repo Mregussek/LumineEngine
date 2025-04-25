@@ -19,7 +19,7 @@ void LoggerImpl::create(const char* loggerName)
 	spdlog::set_default_logger(pLogger);
 }
 
-void LoggerImpl::log(const char* loggerName, const std::string& formattedMsg, LogLevel logLevel,
+void LoggerImpl::log(const char* loggerName, const std::string& formattedMsg, ELogLevel logLevel,
 					 const char* filename, int line, const char* functionName)
 {
 	spdlog::get(loggerName)->log(spdlog::source_loc{ filename, line, functionName },
