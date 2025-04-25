@@ -37,7 +37,10 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
-        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release"
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release",
+
+        "LUMINE_RELEASE": "1",
+        "LUMINE_DEBUG": "0"
       }
     },
     {
@@ -50,7 +53,10 @@
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
         "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
         "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
-        "CMAKE_PDB_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
+        "CMAKE_PDB_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug",
+
+        "LUMINE_RELEASE": "0",
+        "LUMINE_DEBUG": "1"
       }
     },
     {

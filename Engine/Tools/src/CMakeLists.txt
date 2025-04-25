@@ -37,5 +37,7 @@ target_compile_definitions(LumineTools
     PRIVATE
         LUMINE_WIN64=${LUMINE_WIN64}
         LUMINE_LINUX=${LUMINE_LINUX}
+        LUMINE_RELEASE=${LUMINE_RELEASE}
+        LUMINE_DEBUG=${LUMINE_DEBUG}
         STB_IMAGE_IMPLEMENTATION
 )

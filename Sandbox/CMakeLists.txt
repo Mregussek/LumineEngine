@@ -14,6 +14,8 @@ target_compile_definitions(LumineSandbox
         LUMINE_USE_VULKAN=${LUMINE_USE_VULKAN}
         LUMINE_WIN64=${LUMINE_WIN64}
         LUMINE_LINUX=${LUMINE_LINUX}
+        LUMINE_RELEASE=${LUMINE_RELEASE}
+        LUMINE_DEBUG=${LUMINE_DEBUG}
 )
 target_link_libraries(LumineSandbox
     PRIVATE
