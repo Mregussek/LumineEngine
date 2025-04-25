@@ -17,13 +17,16 @@ FactoryDX12::~FactoryDX12()
 void FactoryDX12::Initialize()
 {
 	DXCREATE_LOGGER();
+	DXTRACE("Initializing");
 
-	DXTRACE("Initialized");
+	m_Context.Create();
+
+	DXDEBUG("Initialized");
 }
 
 void FactoryDX12::Close()
 {
-	DXTRACE("Closed");
+	DXDEBUG("Closed");
 }
 
 }

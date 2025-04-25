@@ -28,6 +28,9 @@ target_include_directories(Lumine_DirectX12
 target_link_libraries(Lumine_DirectX12
     PRIVATE
         LumineTools
+        dxgi.lib
+        d3d12.lib
+        d3dcompiler.lib
 )
 target_compile_features(Lumine_DirectX12 PUBLIC cxx_std_23)
 target_compile_definitions(Lumine_DirectX12

@@ -93,6 +93,7 @@ WindowImplGlfw::~WindowImplGlfw()
 
 ErrorStatus WindowImplGlfw::Create(const WindowDescription& description)
 {
+	TTRACE("Creating");
 	m_Desc = description;
 
 	glfwSetErrorCallback(ErrorCallback);
@@ -128,7 +129,7 @@ ErrorStatus WindowImplGlfw::Create(const WindowDescription& description)
 	m_Events.reserve(10);
 
 	m_Created = true;
-	TTRACE("Created, id: {} title: {} iconPath: {}", m_Desc.nameId, m_Desc.title, m_Desc.iconPath);
+	TDEBUG("Created, id: {} title: {} iconPath: {}", m_Desc.nameId, m_Desc.title, m_Desc.iconPath);
 	return ErrorStatus::OK;
 }
 
@@ -144,7 +145,7 @@ void WindowImplGlfw::Destroy()
 	m_pWindow.reset();
 	glfwTerminate();
 	m_Created = false;
-	TTRACE("Destroyed");
+	TDEBUG("Destroyed");
 }
 
 

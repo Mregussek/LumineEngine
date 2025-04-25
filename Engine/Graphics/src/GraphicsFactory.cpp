@@ -14,14 +14,8 @@ namespace lumine::graphics
 
 constexpr std::unique_ptr<IBackendFactory> CreateBackendFactory(EBackendType backendType)
 {
-	if (backendType == EBackendType::Vulkan)
-	{
-		return std::make_unique<BackedFactoryVk>();
-	}
-
 	if (backendType == EBackendType::DirectX12)
 	{
-
 		if constexpr (LUMINE_WIN64 and LUMINE_USE_DIRECTX12)
 		{
 			return std::make_unique<BackendFactoryDX12>();
@@ -32,6 +26,8 @@ constexpr std::unique_ptr<IBackendFactory> CreateBackendFactory(EBackendType bac
 			return nullptr;
 		}
 	}
+
+	return std::make_unique<BackedFactoryVk>();
 }
 
 
@@ -49,6 +45,7 @@ GraphicsFactory::~GraphicsFactory()
 ErrorStatus GraphicsFactory::Initialize(GraphicsSpecification specs)
 {
 	GCREATE_LOGGER();
+	GTRACE("Initializing");
 
 	m_pBackendFactory = CreateBackendFactory(specs.backendType);
 	if (not m_pBackendFactory)
@@ -59,7 +56,7 @@ ErrorStatus GraphicsFactory::Initialize(GraphicsSpecification specs)
 	m_pBackendFactory->Initialize();
 
 	m_Initialized = true;
-	GTRACE("Initialized");
+	GDEBUG("Initialized");
 	return ErrorStatus::OK;
 }
 
@@ -72,7 +69,7 @@ void GraphicsFactory::Close()
 
 	m_pBackendFactory->Close();
 	m_Initialized = false;
-	GTRACE("Closed");
+	GDEBUG("Closed");
 }
 
 }

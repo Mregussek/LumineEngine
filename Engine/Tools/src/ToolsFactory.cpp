@@ -22,14 +22,15 @@ ToolsFactory::~ToolsFactory()
 void ToolsFactory::Initialize()
 {
 	TCREATE_LOGGER();
+	TTRACE("Initializing");
 
-	TTRACE("Initialized");
+	TDEBUG("Initialized");
 }
 
 
 void ToolsFactory::Close()
 {
-	TTRACE("Closed");
+	TDEBUG("Closed");
 }
 
 

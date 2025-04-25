@@ -20,6 +20,7 @@ WindowImplCross::~WindowImplCross()
 
 ErrorStatus WindowImplCross::Create(const WindowDescription& description)
 {
+	TTRACE("Creating");
 	m_Desc = description;
 
 	xwin::WindowDesc windowDesc;
@@ -40,7 +41,7 @@ ErrorStatus WindowImplCross::Create(const WindowDescription& description)
 
 	m_Events.reserve(10);
 
-	TTRACE("Created, id: {} title: {} iconPath: {}", m_Desc.nameId, m_Desc.title, m_Desc.iconPath);
+	TDEBUG("Created, id: {} title: {} iconPath: {}", m_Desc.nameId, m_Desc.title, m_Desc.iconPath);
 	return ErrorStatus::OK;
 }
 
@@ -48,7 +49,7 @@ ErrorStatus WindowImplCross::Create(const WindowDescription& description)
 void WindowImplCross::Destroy()
 {
 	Close();
-	TTRACE("Destroyed");
+	TDEBUG("Destroyed");
 }
 
 

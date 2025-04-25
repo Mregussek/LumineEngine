@@ -12,6 +12,14 @@ import BackendFactory;
 export namespace lumine::graphics
 {
 
+enum class EBackendType
+{
+	Vulkan = 1,
+#if LUMINE_WIN64
+	DirectX12 = 2,
+#endif
+};
+
 struct GraphicsSpecification
 {
 	EBackendType backendType{ EBackendType::Vulkan };

@@ -11,6 +11,16 @@ using namespace lumine;
 using namespace lumine::graphics;
 
 
+constexpr EBackendType GetBackendType()
+{
+	if constexpr (LUMINE_USE_DIRECTX12)
+	{
+		return EBackendType::DirectX12;
+	}
+	return EBackendType::Vulkan;
+}
+
+
 class SandboxBase
 {
 public:
@@ -33,7 +43,7 @@ public:
 		m_pWindow->Create(windowDesc);
 
 		GraphicsSpecification graphicsSpecs{
-			.backendType = EBackendType::Vulkan
+			.backendType = GetBackendType(),
 		};
 		m_GraphicsFactory.Initialize(graphicsSpecs);
 	}
