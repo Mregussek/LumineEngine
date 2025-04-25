@@ -7,7 +7,6 @@ target_sources(LumineSandbox
   PRIVATE
     main.cpp
 )
-target_link_libraries(LumineSandbox PRIVATE LumineTools LumineGraphics)
 target_compile_features(LumineSandbox PUBLIC cxx_std_23)
 target_compile_definitions(LumineSandbox
     PRIVATE
@@ -15,6 +14,11 @@ target_compile_definitions(LumineSandbox
         LUMINE_USE_VULKAN=${LUMINE_USE_VULKAN}
         LUMINE_WIN64=${LUMINE_WIN64}
         LUMINE_LINUX=${LUMINE_LINUX}
+)
+target_link_libraries(LumineSandbox
+    PRIVATE
+        LumineTools
+        LumineGraphics
 )
 
 # Iterate over the list of media files

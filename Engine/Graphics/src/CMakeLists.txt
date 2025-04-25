@@ -33,18 +33,11 @@ target_compile_definitions(LumineGraphics
 target_link_libraries(LumineGraphics
     PRIVATE
         LumineTools
+        Lumine_Vulkan
 )
-
 if(${LUMINE_WIN64})
     target_link_libraries(LumineGraphics
         PRIVATE
-            Lumine_Vulkan
             Lumine_DirectX12
     )
-elseif(${LUMINE_LINUX})
-    target_link_libraries(LumineGraphics
-        PRIVATE
-            Lumine_Vulkan
-    )
 endif()
-

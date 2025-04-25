@@ -29,18 +29,18 @@ struct WindowDescription
 class Window {
 public:
 
-	virtual ~Window() {}
+	virtual ~Window() = default;
 
 public:
 
-	virtual ErrorStatus Create(const WindowDescription& description) { return ErrorStatus::CREATE_FAILED; }
-	virtual void Destroy() {}
+	virtual ErrorStatus Create(const WindowDescription& description) = 0;
+	virtual void Destroy() = 0;
 
-	virtual void Update() {}
-	virtual void Close() {}
+	virtual void Update() = 0;
+	virtual void Close() = 0;
 
-	virtual bool HasPendingEvents() const { return false; }
-	virtual WindowEvent GetNextEvent() { return {}; }
+	virtual bool HasPendingEvents() const = 0;
+	virtual WindowEvent GetNextEvent() = 0;
 
 };
 

@@ -13,6 +13,15 @@ import FactoryVk;
 export namespace lumine::graphics
 {
 
+enum class EBackendType
+{
+	Vulkan = 1,
+#if LUMINE_WIN64
+	DirectX12 = 2,
+#endif
+};
+
+
 class IBackendFactory
 {
 public:

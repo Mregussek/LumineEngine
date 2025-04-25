@@ -12,18 +12,28 @@ import BackendFactory;
 namespace lumine::graphics
 {
 
-constexpr std::unique_ptr<IBackendFactory> CreateBackendFactory()
+constexpr std::unique_ptr<IBackendFactory> CreateBackendFactory(EBackendType backendType)
 {
-	if constexpr (LUMINE_WIN64 and LUMINE_USE_DIRECTX12)
+	if (backendType == EBackendType::Vulkan)
 	{
-		return std::make_unique<BackendFactoryDX12>();
-	}
-	else
-	{
-		// Assume we want to use Vulkan | LUMINE_USE_VULKAN
 		return std::make_unique<BackedFactoryVk>();
 	}
+
+	if (backendType == EBackendType::DirectX12)
+	{
+
+		if constexpr (LUMINE_WIN64 and LUMINE_USE_DIRECTX12)
+		{
+			return std::make_unique<BackendFactoryDX12>();
+		}
+		else
+		{
+			GERROR("DirectX12 is not supported on this platform.");
+			return nullptr;
+		}
+	}
 }
+
 
 }
 
@@ -36,15 +46,21 @@ GraphicsFactory::~GraphicsFactory()
 	Close();
 }
 
-void GraphicsFactory::Initialize()
+ErrorStatus GraphicsFactory::Initialize(GraphicsSpecification specs)
 {
 	GCREATE_LOGGER();
 
-	m_pBackendFactory = CreateBackendFactory();
+	m_pBackendFactory = CreateBackendFactory(specs.backendType);
+	if (not m_pBackendFactory)
+	{
+		return ErrorStatus::CREATE_FAILED;
+	}
+
 	m_pBackendFactory->Initialize();
 
 	m_Initialized = true;
 	GTRACE("Initialized");
+	return ErrorStatus::OK;
 }
 
 void GraphicsFactory::Close()

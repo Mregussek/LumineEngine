@@ -32,7 +32,10 @@ public:
 		m_pWindow = m_ToolsFactory.CreateWindow();
 		m_pWindow->Create(windowDesc);
 
-		m_GraphicsFactory.Initialize();
+		GraphicsSpecification graphicsSpecs{
+			.backendType = EBackendType::Vulkan
+		};
+		m_GraphicsFactory.Initialize(graphicsSpecs);
 	}
 
 	void Run()
