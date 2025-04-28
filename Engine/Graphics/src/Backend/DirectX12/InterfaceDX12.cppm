@@ -1,7 +1,7 @@
 
 module;
 
-export module FactoryDX12;
+export module InterfaceDX12;
 
 import ContextDX12;
 
@@ -9,10 +9,10 @@ import ContextDX12;
 export namespace lumine::graphics::dx12
 {
 
-class FactoryDX12 {
+class InterfaceDX12 {
 public:
 
-    ~FactoryDX12();
+    ~InterfaceDX12();
 
 public:
 

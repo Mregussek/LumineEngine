@@ -1,32 +1,27 @@
 
 module;
 
-#include "Types.h"
 #include <wrl/client.h>
-#include <dxgi1_6.h>
 #include <d3d12.h>
 
-export module ContextDX12;
-
-import FactoryDX12;
-import AdapterDX12;
+export module DebugDX12;
 
 
 export namespace lumine::graphics::dx12
 {
 
-class ContextDX12
+class DebugDX12
 {
 	template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
 
-	ErrorStatus Create();
-	void Destroy();
+	void Enable(UINT& dxgiFactoryFlags);
 
 private:
 
-	FactoryDX12 m_Factory{};
+	ComPtr<ID3D12Debug6> m_DebugController{ nullptr };
+	ComPtr<ID3D12DebugDevice2> m_DebugDevice{ nullptr };
 
 };
 

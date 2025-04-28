@@ -6,7 +6,7 @@ module;
 
 export module GraphicsFactory;
 
-import BackendFactory;
+import BackendInterface;
 
 
 export namespace lumine::graphics
@@ -38,7 +38,7 @@ public:
 
 private:
 
-	std::unique_ptr<IBackendFactory> m_pBackendFactory{ nullptr };
+	std::unique_ptr<IBackendInterface> m_pBackend{ nullptr };
 	bool m_Initialized{ false };
 
 };

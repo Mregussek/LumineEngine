@@ -3,11 +3,14 @@ module;
 
 #include "Types.h"
 #include "LoggerDX12.h"
+#include <wrl/client.h>
 #include <dxgi1_6.h>
+#include <d3d12.h>
+#include <vector>
 
 module ContextDX12;
 
-import AssertsDX12;
+import DebugDX12;
 
 
 namespace lumine::graphics::dx12
@@ -17,8 +20,7 @@ ErrorStatus ContextDX12::Create()
 {
 	DXTRACE("Creating");
 
-	HRESULT hr = CreateDXGIFactory2(0, IID_PPV_ARGS(m_DxFactory.ReleaseAndGetAddressOf()));
-	AssertDX12(hr);
+	m_Factory.Create();
 
 	DXDEBUG("Created");
 	return ErrorStatus::OK;

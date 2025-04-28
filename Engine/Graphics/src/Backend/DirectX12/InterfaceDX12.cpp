@@ -3,18 +3,18 @@ module;
 
 #include "LoggerDX12.h"
 
-module FactoryDX12;
+module InterfaceDX12;
 
 
 namespace lumine::graphics::dx12
 {
 
-FactoryDX12::~FactoryDX12()
+InterfaceDX12::~InterfaceDX12()
 {
 	Close();
 }
 
-void FactoryDX12::Initialize()
+void InterfaceDX12::Initialize()
 {
 	DXCREATE_LOGGER();
 	DXTRACE("Initializing");
@@ -24,7 +24,7 @@ void FactoryDX12::Initialize()
 	DXDEBUG("Initialized");
 }
 
-void FactoryDX12::Close()
+void InterfaceDX12::Close()
 {
 	DXDEBUG("Closed");
 }
