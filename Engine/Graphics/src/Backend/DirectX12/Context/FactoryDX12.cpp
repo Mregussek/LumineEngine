@@ -73,7 +73,7 @@ void FactoryDX12::SelectAdapter()
 	std::string gpuName = GetGpuNameStr(desc);
 	u32 vramMb = static_cast<u32>(desc.DedicatedVideoMemory / 1024 / 1024);
 
-	DXINFO("Selected Adapter --- {} --- VRAM {} Mb", gpuName, vramMb);
+	DXINFO("Selected Adapter --- {} --- VRAM {} MB", gpuName, vramMb);
 }
 
 }
