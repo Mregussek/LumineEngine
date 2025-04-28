@@ -61,12 +61,13 @@ ErrorStatus GraphicsFactory::Initialize(GraphicsSpecification specs)
 
 void GraphicsFactory::Close()
 {
-	if (not m_Initialized)
-	{
-		return;
-	}
+	GTRACE("Closing");
 
-	m_pBackend->Close();
+	if (m_Initialized)
+	{
+		m_pBackend->Close();
+	}
+	
 	m_Initialized = false;
 	GDEBUG("Closed");
 }

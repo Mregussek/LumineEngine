@@ -2,14 +2,13 @@
 module;
 
 #include "Types.h"
-#include <wrl/client.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
 
 export module ContextDX12;
 
 import FactoryDX12;
-import AdapterDX12;
+import DeviceDX12;
 
 
 export namespace lumine::graphics::dx12
@@ -17,16 +16,15 @@ export namespace lumine::graphics::dx12
 
 class ContextDX12
 {
-	template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
 public:
 
-	ErrorStatus Create();
+	void Create();
 	void Destroy();
 
 private:
 
 	FactoryDX12 m_Factory{};
+	DeviceDX12 m_Device{};
 
 };
 

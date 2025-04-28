@@ -25,7 +25,28 @@ void FactoryDX12::Create()
 	CreateFactory();
 	SelectAdapter();
 
+	m_bCreated = true;
 	DXDEBUG("Created");
+}
+
+
+void FactoryDX12::Destroy()
+{
+	DXTRACE("Destroying");
+
+	if (m_bCreated)
+	{
+		m_pAdapter->Release();
+
+		if constexpr (LUMINE_DEBUG)
+		{
+			m_DebugFactory.Destroy();
+		}
+		m_Factory->Release();
+	}
+
+	m_bCreated = false;
+	DXDEBUG("Destroyed");
 }
 
 
@@ -35,7 +56,7 @@ void FactoryDX12::CreateFactory()
 
 	if constexpr (LUMINE_DEBUG)
 	{
-		m_Debug.Enable(dxgiFactoryFlags);
+		m_DebugFactory.Enable(dxgiFactoryFlags);
 	}
 
 	HRESULT hr = CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(m_Factory.ReleaseAndGetAddressOf()));

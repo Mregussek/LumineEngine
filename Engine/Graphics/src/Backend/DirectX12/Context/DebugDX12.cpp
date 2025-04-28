@@ -12,7 +12,7 @@ module DebugDX12;
 namespace lumine::graphics::dx12
 {
 
-void DebugDX12::Enable(UINT& dxgiFactoryFlags)
+void DebugFactoryDX12::Enable(UINT& dxgiFactoryFlags)
 {
 	DXTRACE("Enabling");
 
@@ -31,7 +31,55 @@ void DebugDX12::Enable(UINT& dxgiFactoryFlags)
 
 	pTmpDebug->Release();
 
-	DXTRACE("Enabled");
+	m_bEnabled = true;
+	DXTRACE("Enabled Factory");
+}
+
+
+void DebugFactoryDX12::Destroy()
+{
+	DXTRACE("Destroying");
+
+	if (m_bEnabled)
+	{
+		m_DebugController->Release();
+		m_DebugController.Reset();
+		m_bEnabled = false;
+	}
+
+	DXDEBUG("Destroyed Factory");
+}
+
+
+
+void DebugDeviceDX12::Enable(const ComPtr<ID3D12Device>& pDevice)
+{
+	DXTRACE("Enabling");
+	HRESULT hr = pDevice->QueryInterface(IID_PPV_ARGS(m_DebugDevice.ReleaseAndGetAddressOf()));
+	DXASSERT(hr);
+
+	m_bEnabled = true;
+	DXTRACE("Enabled Device");
+}
+
+
+void DebugDeviceDX12::Destroy()
+{
+	DXTRACE("Destroying");
+
+	if (m_bEnabled)
+	{
+		D3D12_RLDO_FLAGS flags =
+			D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL;
+
+		m_DebugDevice->ReportLiveDeviceObjects(flags);
+
+		m_DebugDevice->Release();
+		m_DebugDevice.Reset();
+		m_bEnabled = false;
+	}
+
+	DXDEBUG("Destroyed Device");
 }
 
 }

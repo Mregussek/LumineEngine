@@ -1,7 +1,6 @@
 
 module;
 
-#include "Types.h"
 #include <wrl/client.h>
 #include <dxgi1_6.h>
 
@@ -20,8 +19,10 @@ class FactoryDX12
 public:
 
 	void Create();
+	void Destroy();
 
-	[[nodiscard]] const ComPtr<IDXGIFactory7>& Handle() const { return m_Factory; }
+	[[nodiscard]] const ComPtr<IDXGIFactory7>& HandleFactory() const { return m_Factory; }
+	[[nodiscard]] const ComPtr<IDXGIAdapter4>& HandleAdapter() const { return m_pAdapter; }
 
 private:
 
@@ -34,8 +35,10 @@ private:
 	ComPtr<IDXGIAdapter4> m_pAdapter{ nullptr };
 
 #if LUMINE_DEBUG
-	DebugDX12 m_Debug{};
+	DebugFactoryDX12 m_DebugFactory{};
 #endif
+
+	bool m_bCreated{ false };
 
 };
 

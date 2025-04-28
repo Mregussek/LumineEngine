@@ -30,8 +30,7 @@ static u32 GetScore(IDXGIAdapter4* pAdapter)
 		return score;
 	}
 
-	D3D_FEATURE_LEVEL minVersion = D3D_FEATURE_LEVEL_12_2;
-	bool bSupportsD3D12 = D3D12CreateDevice(pAdapter, minVersion, _uuidof(ID3D12Device), nullptr);
+	bool bSupportsD3D12 = D3D12CreateDevice(pAdapter, L_D3D12_MIN_FEATURE_LEVEL, _uuidof(ID3D12Device), nullptr);
 	if (not bSupportsD3D12)
 	{
 		DXTRACE("Skipping adapter {}, which does not support D3D12!", gpuName);

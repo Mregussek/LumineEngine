@@ -22,6 +22,7 @@ public:
 private:
 
     ContextDX12 m_Context{};
+    bool m_bInitialized{ false };
 
 };
 
