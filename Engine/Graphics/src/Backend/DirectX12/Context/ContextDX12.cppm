@@ -25,6 +25,7 @@ private:
 
 	FactoryDX12 m_Factory{};
 	DeviceDX12 m_Device{};
+	bool m_bCreated{ false };
 
 };
 

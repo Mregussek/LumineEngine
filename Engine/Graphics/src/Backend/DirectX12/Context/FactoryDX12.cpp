@@ -37,11 +37,11 @@ void FactoryDX12::Destroy()
 	if (m_bCreated)
 	{
 		m_pAdapter->Release();
+		m_pAdapter.Reset();
 
-		if constexpr (LUMINE_DEBUG)
-		{
-			m_DebugFactory.Destroy();
-		}
+#if LUMINE_DEBUG
+		m_DebugFactory.Destroy();
+#endif
 		m_Factory->Release();
 	}
 
@@ -54,10 +54,9 @@ void FactoryDX12::CreateFactory()
 {
 	UINT dxgiFactoryFlags{ 0 };
 
-	if constexpr (LUMINE_DEBUG)
-	{
-		m_DebugFactory.Enable(dxgiFactoryFlags);
-	}
+#if LUMINE_DEBUG
+	m_DebugFactory.Enable(dxgiFactoryFlags);
+#endif
 
 	HRESULT hr = CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(m_Factory.ReleaseAndGetAddressOf()));
 	DXASSERT(hr);

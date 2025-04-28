@@ -23,10 +23,9 @@ void DeviceDX12::Create(const ComPtr<IDXGIAdapter4>& pAdapter)
 	
 	m_Device->SetName(L"LumineEngineGraphicsBackendD3D12");
 
-	if constexpr (LUMINE_DEBUG)
-	{
-		m_DebugDevice.Enable(m_Device);
-	}
+#if LUMINE_DEBUG
+	m_DebugDevice.Enable(m_Device);
+#endif
 
 	m_bCreated = true;
 	DXDEBUG("Created");
@@ -39,12 +38,12 @@ void DeviceDX12::Destroy()
 
 	if (m_bCreated)
 	{
-		if constexpr (LUMINE_DEBUG)
-		{
-			m_DebugDevice.Destroy();
-		}
+#if LUMINE_DEBUG
+		m_DebugDevice.Destroy();
+#endif
 
 		m_Device->Release();
+		m_Device.Reset();
 	}
 
 	m_bCreated = false;

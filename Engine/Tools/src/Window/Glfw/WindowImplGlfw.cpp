@@ -136,14 +136,16 @@ ErrorStatus WindowImplGlfw::Create(const WindowDescription& description)
 
 void WindowImplGlfw::Destroy()
 {
+	TTRACE("Destroying");
+
 	if (m_Created)
 	{
-		return;
+		Close();
+		m_pWindow.reset();
+		m_Events.clear();
+		glfwTerminate();
 	}
 
-	Close();
-	m_pWindow.reset();
-	glfwTerminate();
 	m_Created = false;
 	TDEBUG("Destroyed");
 }

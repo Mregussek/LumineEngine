@@ -24,6 +24,7 @@ void ContextDX12::Create()
 	m_Factory.Create();
 	m_Device.Create(m_Factory.HandleAdapter());
 
+	m_bCreated = true;
 	DXDEBUG("Created");
 }
 
@@ -31,9 +32,13 @@ void ContextDX12::Destroy()
 {
 	DXTRACE("Destroying");
 
-	m_Device.Destroy();
-	m_Factory.Destroy();
+	if (m_bCreated)
+	{
+		m_Device.Destroy();
+		m_Factory.Destroy();
+	}
 
+	m_bCreated = false;
 	DXDEBUG("Destroyed");
 }
 

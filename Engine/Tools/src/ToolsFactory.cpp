@@ -30,6 +30,8 @@ void ToolsFactory::Initialize()
 
 void ToolsFactory::Close()
 {
+	TTRACE("Closing");
+
 	TDEBUG("Closed");
 }
 

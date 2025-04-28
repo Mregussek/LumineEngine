@@ -69,7 +69,8 @@ public:
 
 	void Close()
 	{
-
+		m_GraphicsFactory.Close();
+		m_ToolsFactory.Close();
 	}
 
 private:
@@ -86,4 +87,5 @@ int main()
 	SandboxBase sandbox{};
 	sandbox.Initialize();
 	sandbox.Run();
+	sandbox.Close();
 }

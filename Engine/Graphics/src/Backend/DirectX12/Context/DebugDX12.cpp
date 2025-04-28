@@ -44,9 +44,9 @@ void DebugFactoryDX12::Destroy()
 	{
 		m_DebugController->Release();
 		m_DebugController.Reset();
-		m_bEnabled = false;
 	}
 
+	m_bEnabled = false;
 	DXDEBUG("Destroyed Factory");
 }
 
@@ -76,9 +76,9 @@ void DebugDeviceDX12::Destroy()
 
 		m_DebugDevice->Release();
 		m_DebugDevice.Reset();
-		m_bEnabled = false;
 	}
 
+	m_bEnabled = false;
 	DXDEBUG("Destroyed Device");
 }
 
