@@ -12,10 +12,6 @@ export namespace lumine::graphics::dx12
 class InterfaceDX12 {
 public:
 
-    ~InterfaceDX12();
-
-public:
-
     void Initialize();
     void Close();
 
