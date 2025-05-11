@@ -28,6 +28,7 @@ target_include_directories(Lumine_Vulkan
 )
 target_link_libraries(Lumine_Vulkan
     PRIVATE
+        Lumine_GraphicsCore
         LumineTools
         volk_headers
 )

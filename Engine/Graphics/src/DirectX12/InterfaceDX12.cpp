@@ -9,7 +9,7 @@ module InterfaceDX12;
 namespace lumine::graphics::dx12
 {
 
-void InterfaceDX12::Initialize()
+void InterfaceDX12::Initialize(const GraphicsSpecification& specs)
 {
 	DXCREATE_LOGGER();
 	DXTRACE("Initializing");

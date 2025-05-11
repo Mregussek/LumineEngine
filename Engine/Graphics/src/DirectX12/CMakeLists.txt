@@ -27,6 +27,7 @@ target_include_directories(Lumine_DirectX12
 )
 target_link_libraries(Lumine_DirectX12
     PRIVATE
+        Lumine_GraphicsCore
         LumineTools
         dxgi.lib
         d3d12.lib

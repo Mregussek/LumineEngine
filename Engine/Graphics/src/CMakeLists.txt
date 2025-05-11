@@ -1,5 +1,10 @@
 
-add_subdirectory(Backend)
+add_subdirectory(Core)
+add_subdirectory(Vulkan)
+
+if(${LUMINE_WIN64})
+    add_subdirectory(DirectX12)
+endif()
 
 # Target Library
 
@@ -34,8 +39,9 @@ target_compile_definitions(LumineGraphics
 
 target_link_libraries(LumineGraphics
     PRIVATE
-        LumineTools
+        Lumine_GraphicsCore
         Lumine_Vulkan
+        LumineTools
 )
 if(${LUMINE_WIN64})
     target_link_libraries(LumineGraphics

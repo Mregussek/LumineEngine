@@ -5,7 +5,8 @@ export module GraphicsBackend;
 
 #include "Types.h"
 
-import FactoryVk;
+import GraphicsSpecification;
+import InterfaceVk;
 #if LUMINE_WIN64
 	import InterfaceDX12;
 #endif
@@ -35,7 +36,8 @@ public:
 
 	void Initialize() override
 	{
-		m_Interface.Initialize();
+		GraphicsSpecification specs{};
+		m_Interface.Initialize(specs);
 	}
 
 	void Close() override
@@ -50,7 +52,7 @@ private:
 };
 
 
-typedef GraphicsBackend<vk::FactoryVk> GraphicsBackendVk;
+typedef GraphicsBackend<vk::InterfaceVk> GraphicsBackendVk;
 
 #if LUMINE_WIN64
 	typedef GraphicsBackend<dx12::InterfaceDX12> GraphicsBackendDX12;
