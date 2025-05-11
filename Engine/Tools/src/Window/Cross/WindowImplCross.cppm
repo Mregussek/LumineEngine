@@ -26,8 +26,10 @@ public:
 	void Update() override;
 	void Close() override;
 
-	bool HasPendingEvents() const override;
-	WindowEvent GetNextEvent() override;
+	[[nodiscard]] bool HasPendingEvents() const override;
+	[[nodiscard]] WindowEvent GetNextEvent() override;
+
+	[[nodiscard]] WindowRawHandle GetRawHandle() const override;
 
 private:
 

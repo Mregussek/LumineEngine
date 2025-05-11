@@ -5,6 +5,8 @@ module;
 
 module InterfaceDX12;
 
+import SpecificationDX12;
+
 
 namespace lumine::graphics::dx12
 {
@@ -14,7 +16,9 @@ void InterfaceDX12::Initialize(const GraphicsSpecification& specs)
 	DXCREATE_LOGGER();
 	DXTRACE("Initializing");
 
-	m_Context.Create();
+	SpecificationDX12 specsDX12{};
+
+	m_Context.Create(specsDX12);
 
 	m_bInitialized = true;
 	DXDEBUG("Initialized");

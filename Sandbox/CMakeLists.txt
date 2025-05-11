@@ -6,6 +6,7 @@ add_executable(LumineSandbox)
 target_sources(LumineSandbox
   PRIVATE
     main.cpp
+    ${LUMINE_UTIL_HEADERS}
 )
 target_compile_features(LumineSandbox PUBLIC cxx_std_23)
 target_compile_definitions(LumineSandbox
@@ -16,6 +17,10 @@ target_compile_definitions(LumineSandbox
         LUMINE_LINUX=${LUMINE_LINUX}
         LUMINE_RELEASE=${LUMINE_RELEASE}
         LUMINE_DEBUG=${LUMINE_DEBUG}
+)
+target_include_directories(LumineSandbox
+    PRIVATE
+        ${LUMINE_UTIL_INCLUDE_DIR}
 )
 target_link_libraries(LumineSandbox
     PRIVATE

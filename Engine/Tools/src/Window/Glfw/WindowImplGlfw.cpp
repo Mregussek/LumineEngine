@@ -3,7 +3,11 @@ module;
 
 #include "Types.h"
 #include "TLogger.h"
+#if LUMINE_WIN64
+	#define GLFW_EXPOSE_NATIVE_WIN32
+#endif
 #include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 #include <stb_image.h>
 
 module WindowImplGlfw;
@@ -181,6 +185,16 @@ WindowEvent WindowImplGlfw::GetNextEvent()
 	WindowEvent event = m_Events.back();
 	m_Events.pop_back();
 	return event;
+}
+
+
+WindowRawHandle WindowImplGlfw::GetRawHandle() const
+{
+#if LUMINE_WIN64
+	return WindowRawHandle{ .hwnd = glfwGetWin32Window(m_pWindow.get()) };
+#else
+	#error "Unsupported platform!"
+#endif
 }
 
 }

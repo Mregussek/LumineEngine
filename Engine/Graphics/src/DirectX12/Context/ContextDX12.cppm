@@ -8,6 +8,8 @@ module;
 
 export module ContextDX12;
 
+import SpecificationDX12;
+
 
 export namespace lumine::graphics::dx12
 {
@@ -18,7 +20,7 @@ class ContextDX12
 
 public:
 
-	void Create();
+	void Create(const SpecificationDX12& specs);
 	void Destroy();
 
 private:
@@ -28,6 +30,11 @@ private:
 		void Enable(UINT& dxgiFactoryFlags);
 
 		ComPtr<ID3D12Debug6> m_Handle{ nullptr };
+	};
+
+	struct DxAdapterSelector
+	{
+		static ComPtr<IDXGIAdapter4> Select(const ComPtr<IDXGIFactory7>& pFactoryHandle);
 	};
 
 	struct DxFactory
@@ -67,7 +74,6 @@ private:
 #endif
 	};
 
-
 	struct DxCommandInterface
 	{
 		void Create(const ComPtr<ID3D12Device10>& pDevice);
@@ -82,13 +88,11 @@ private:
 
 	};
 
-
 	struct DxSwapchain
 	{
 		void Create();
 
 	};
-
 
 private:
 

@@ -30,6 +30,7 @@ struct SwapchainSpecification
 struct GraphicsSpecification
 {
 	SwapchainSpecification swapchain{};
+	WindowRawHandle windowRawHandle{};
 };
 
 }

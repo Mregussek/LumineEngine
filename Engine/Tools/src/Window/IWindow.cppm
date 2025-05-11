@@ -1,6 +1,12 @@
 
 module;
 
+#if LUMINE_WIN64
+	#include <Windows.h>
+#else
+	#error "Unsupported platform!"
+#endif
+
 #include "Types.h"
 #include <string>
 
@@ -11,6 +17,15 @@ import WindowEvent;
 
 export namespace lumine
 {
+
+struct WindowRawHandle
+{
+#if LUMINE_WIN64
+	HWND hwnd{ nullptr };
+#else
+	#error "Unsupported platform!"
+#endif
+};
 
 struct WindowDescription
 {
@@ -39,8 +54,10 @@ public:
 	virtual void Update() = 0;
 	virtual void Close() = 0;
 
-	virtual bool HasPendingEvents() const = 0;
-	virtual WindowEvent GetNextEvent() = 0;
+	[[nodiscard]] virtual bool HasPendingEvents() const = 0;
+	[[nodiscard]] virtual WindowEvent GetNextEvent() = 0;
+
+	[[nodiscard]] virtual WindowRawHandle GetRawHandle() const = 0;
 
 };
 

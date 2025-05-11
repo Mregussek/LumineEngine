@@ -103,4 +103,10 @@ WindowEvent WindowImplCross::GetNextEvent()
 	return event;
 }
 
+
+WindowRawHandle WindowImplCross::GetRawHandle() const
+{
+	return {};
+}
+
 }

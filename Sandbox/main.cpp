@@ -5,6 +5,7 @@ import Path;
 
 import GraphicsFactory;
 import GraphicsSpecification;
+#include "Types.h"
 #include <memory>
 #include <iostream>
 
@@ -22,6 +23,15 @@ constexpr static EBackendType GetBackendType()
 }
 
 
+struct
+{
+	u32 width{ 1600 };
+	u32 height{ 900 };
+	EFormat swapchainFormat{ EFormat::R8G8B8A8_UNORM };
+	u32 backBufferCount{ 3 };
+} SandboxSettings;
+
+
 class SandboxBase
 {
 public:
@@ -32,8 +42,8 @@ public:
 
 		Path iconPath({ "Media", "lumine.png" });
 		WindowDescription windowDesc{
-			.width = 1600,
-			.height = 900,
+			.width = SandboxSettings.width,
+			.height = SandboxSettings.height,
 			.nameId = "LumineSandboxID",
 			.title = "LumineSandbox",
 			.iconPath = iconPath,
@@ -47,7 +57,15 @@ public:
 
 		m_pGraphicsApi = m_GraphicsFactory.CreateBackend(GetBackendType());
 
-		GraphicsSpecification graphicsSpecs{};
+		GraphicsSpecification graphicsSpecs{
+			.swapchain = {
+				.width = SandboxSettings.width,
+				.height = SandboxSettings.height,
+				.format = SandboxSettings.swapchainFormat,
+				.backBufferCount = SandboxSettings.backBufferCount
+			},
+			.windowRawHandle = m_pWindow->GetRawHandle()
+		};
 		m_pGraphicsApi->Initialize(graphicsSpecs);
 	}
 
