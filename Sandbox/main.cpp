@@ -4,6 +4,7 @@ import Window;
 import Path;
 
 import GraphicsFactory;
+import GraphicsSpecification;
 #include <memory>
 #include <iostream>
 
@@ -45,7 +46,9 @@ public:
 		m_GraphicsFactory.Initialize();
 
 		m_pGraphicsApi = m_GraphicsFactory.CreateBackend(GetBackendType());
-		m_pGraphicsApi->Initialize();
+
+		GraphicsSpecification graphicsSpecs{};
+		m_pGraphicsApi->Initialize(graphicsSpecs);
 	}
 
 	void Run()

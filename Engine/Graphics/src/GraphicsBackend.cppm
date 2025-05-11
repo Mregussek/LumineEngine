@@ -23,7 +23,7 @@ public:
 
 public:
 
-	virtual void Initialize() = 0;
+	virtual void Initialize(const GraphicsSpecification& specs) = 0;
 	virtual void Close() = 0;
 
 };
@@ -34,16 +34,8 @@ class GraphicsBackend : public IGraphicsBackend
 {
 public:
 
-	void Initialize() override
-	{
-		GraphicsSpecification specs{};
-		m_Interface.Initialize(specs);
-	}
-
-	void Close() override
-	{
-		m_Interface.Close();
-	}
+	void Initialize(const GraphicsSpecification& specs) override { m_Interface.Initialize(specs); }
+	void Close() override { m_Interface.Close(); }
 
 private:
 
