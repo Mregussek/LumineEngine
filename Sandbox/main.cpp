@@ -11,7 +11,7 @@ using namespace lumine;
 using namespace lumine::graphics;
 
 
-constexpr EBackendType GetBackendType()
+constexpr static EBackendType GetBackendType()
 {
 	if constexpr (LUMINE_USE_DIRECTX12)
 	{

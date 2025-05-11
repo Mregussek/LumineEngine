@@ -1,5 +1,6 @@
 
 cmake_minimum_required(VERSION 3.31)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # ------------------- Build Media / Resources Setup
 
@@ -10,11 +11,6 @@ set(LUMINE_MEDIA_FILES
 )
 
 # ------------------- C++ setup
-
-# Only set the cxx_standard if it is not set by someone else
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 23)
-endif()
 
 # strongly encouraged to enable this globally to avoid conflicts between
 # -Wpedantic being enabled and -std=c++20 and -std=gnu++20 for example
@@ -28,7 +24,6 @@ project(LumineEngine
     LANGUAGES CXX C
 )
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(cmake/StandardSettings.cmake)
 
 LumineEnableCxxModules()

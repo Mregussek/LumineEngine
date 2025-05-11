@@ -12,7 +12,7 @@ import BackendInterface;
 namespace lumine::graphics
 {
 
-constexpr std::unique_ptr<IBackendInterface> CreateBackendInterface(EBackendType backendType)
+constexpr static std::unique_ptr<IBackendInterface> CreateBackendInterface(EBackendType backendType)
 {
 	if (backendType == EBackendType::DirectX12)
 	{

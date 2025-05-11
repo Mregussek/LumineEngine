@@ -121,8 +121,8 @@ class CMakePresetsParser:
         logging.info("Selected configure preset: {}".format(preset))
         return preset
 
-    def get_build_preset(self, platform, mode):
-        required_params = { platform, mode }
+    def get_build_preset(self, platform, mode, graphics_api):
+        required_params = { platform, mode, graphics_api }
         preset = CMakePresetsParser.__get_preset_name(self.build_presets, required_params)
         logging.info("Selected build preset: {}".format(preset))
         return preset
@@ -269,7 +269,7 @@ def main():
         runner.run_dev_command(cmake_runner.get_generate_cmd(conf_preset))
 
     if args.should_build():
-        build_preset = cmake_presets.get_build_preset(platform_os, args.get_build_mode())
+        build_preset = cmake_presets.get_build_preset(platform_os, args.get_build_mode(), args.get_graphics_api())
         runner.run_dev_command(cmake_runner.get_build_cmd(build_preset))
 
     if args.should_run():

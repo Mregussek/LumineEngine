@@ -43,7 +43,6 @@ void DeviceDX12::Destroy()
 #endif
 
 		m_Device->Release();
-		m_Device.Reset();
 	}
 
 	m_bCreated = false;

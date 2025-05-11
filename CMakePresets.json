@@ -7,7 +7,7 @@
   },
   "configurePresets": [
     {
-      "name": "win64_base",
+      "name": "cfg_win64_base",
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
@@ -18,20 +18,20 @@
         "CMAKE_CXX_STANDARD": "23",
         "CMAKE_CXX_STANDARD_REQUIRED": true,
         "CMAKE_CXX_EXTENSIONS": false,
-        "CMAKE_CXX_COMPILER": "cl",
         "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
         "CMAKE_MAKE_PROGRAM": "${sourceDir}/cmake/ninja_win_v1.12.1/ninja.exe",
         "CMAKE_CXX_FLAGS": "/utf-8 /EHsc /D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 /D_CRT_SECURE_NO_WARNINGS=1",
         "LUMINE_WIN64": "1",
         "LUMINE_LINUX": "0",
 
-        "LUMINE_WARNINGS_AS_ERRORS": true,
-        "LUMINE_USE_IPO": false
+        "LUMINE_WARNINGS_AS_ERRORS": true
       }
     },
     {
-      "name": "win64_release",
-      "inherits": "win64_base",
+      "name": "cfg_win64_release",
+      "inherits": "cfg_win64_base",
+      "hidden": true,
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -44,8 +44,9 @@
       }
     },
     {
-      "name": "win64_debug",
-      "inherits": "win64_base",
+      "name": "cfg_win64_debug",
+      "inherits": "cfg_win64_base",
+      "hidden": true,
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
@@ -60,32 +61,32 @@
       }
     },
     {
-      "name": "vulkan_win64_release",
-      "inherits": "win64_release",
+      "name": "cfg_vulkan_win64_release",
+      "inherits": "cfg_win64_release",
       "cacheVariables": {
         "LUMINE_USE_VULKAN": "1",
         "LUMINE_USE_DIRECTX12": "0"
       }
     },
     {
-      "name": "vulkan_win64_debug",
-      "inherits": "win64_debug",
+      "name": "cfg_vulkan_win64_debug",
+      "inherits": "cfg_win64_debug",
       "cacheVariables": {
         "LUMINE_USE_VULKAN": "1",
         "LUMINE_USE_DIRECTX12": "0"
       }
     },
     {
-      "name": "dx12_win64_release",
-      "inherits": "win64_release",
+      "name": "cfg_dx12_win64_release",
+      "inherits": "cfg_win64_release",
       "cacheVariables": {
         "LUMINE_USE_VULKAN": "0",
         "LUMINE_USE_DIRECTX12": "1"
       }
     },
     {
-      "name": "dx12_win64_debug",
-      "inherits": "win64_debug",
+      "name": "cfg_dx12_win64_debug",
+      "inherits": "cfg_win64_debug",
       "cacheVariables": {
         "LUMINE_USE_VULKAN": "0",
         "LUMINE_USE_DIRECTX12": "1"
@@ -94,13 +95,23 @@
   ],
   "buildPresets": [
     {
-      "name": "win64_release",
-      "configurePreset": "win64_release",
+      "name": "dx12_win64_release",
+      "configurePreset": "cfg_dx12_win64_release",
       "configuration": "Release"
     },
     {
-      "name": "win64_debug",
-      "configurePreset": "win64_debug",
+      "name": "dx12_win64_debug",
+      "configurePreset": "cfg_dx12_win64_debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "vulkan_win64_release",
+      "configurePreset": "cfg_vulkan_win64_release",
+      "configuration": "Release"
+    },
+    {
+      "name": "vulkan_win64_debug",
+      "configurePreset": "cfg_vulkan_win64_debug",
       "configuration": "Debug"
     }
   ]
