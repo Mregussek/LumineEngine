@@ -6,14 +6,14 @@ module;
 
 export module WindowImplCross;
 
-import Window;
+import IWindow;
 import WindowEvent;
 
 
 export namespace lumine
 {
 
-class WindowImplCross : public Window {
+class WindowImplCross : public IWindow {
 public:
 
 	~WindowImplCross();

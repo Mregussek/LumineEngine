@@ -4,7 +4,7 @@ module;
 #include "Types.h"
 #include <string>
 
-export module Window;
+export module IWindow;
 
 import WindowEvent;
 
@@ -26,10 +26,10 @@ struct WindowDescription
 };
 
 
-class Window {
+class IWindow {
 public:
 
-	virtual ~Window() = default;
+	virtual ~IWindow() = default;
 
 public:
 

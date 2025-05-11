@@ -5,7 +5,7 @@ module;
 
 export module GraphicsSpecification;
 
-import Window;
+import IWindow;
 
 
 export namespace lumine::graphics

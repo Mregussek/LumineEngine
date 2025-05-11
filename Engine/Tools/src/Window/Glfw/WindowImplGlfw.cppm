@@ -8,14 +8,14 @@ module;
 
 export module WindowImplGlfw;
 
-import Window;
+import IWindow;
 import WindowEvent;
 
 
 export namespace lumine
 {
 
-class WindowImplGlfw : public Window
+class WindowImplGlfw : public IWindow
 {
 
 	struct GLFWwindowDeleter

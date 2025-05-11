@@ -36,7 +36,7 @@ void ToolsFactory::Close()
 }
 
 
-std::shared_ptr<Window> ToolsFactory::CreateWindow() const
+std::shared_ptr<IWindow> ToolsFactory::CreateWindow() const
 {
 	return std::make_shared<WindowImplGlfw>();
 }

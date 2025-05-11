@@ -1,6 +1,6 @@
 
 import ToolsFactory;
-import Window;
+import IWindow;
 import Path;
 
 import GraphicsFactory;
@@ -81,7 +81,7 @@ private:
 	ToolsFactory m_ToolsFactory{};
 	GraphicsFactory m_GraphicsFactory{};
 	std::unique_ptr<IGraphicsBackend> m_pGraphicsApi{ nullptr };
-	std::shared_ptr<Window> m_pWindow{ nullptr };
+	std::shared_ptr<IWindow> m_pWindow{ nullptr };
 
 };
 

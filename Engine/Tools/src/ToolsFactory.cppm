@@ -5,7 +5,7 @@ module;
 
 export module ToolsFactory;
 
-import Window;
+import IWindow;
 
 
 export namespace lumine
@@ -23,7 +23,7 @@ public:
 
 public:
 
-    std::shared_ptr<Window> CreateWindow() const;
+    std::shared_ptr<IWindow> CreateWindow() const;
 
 };
 
