@@ -4,7 +4,7 @@ add_subdirectory(Backend)
 # Target Library
 
 set(GRAPHICS_SOURCES GLogger.h GraphicsFactory.cpp)
-set(GRAPHICS_MODULES GraphicsFactory.cppm BackendInterface.cppm)
+set(GRAPHICS_MODULES GraphicsFactory.cppm GraphicsBackend.cppm)
 
 add_library(LumineGraphics STATIC)
 LumineSetLocalOptions(LumineGraphics)

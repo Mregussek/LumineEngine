@@ -42,10 +42,10 @@ public:
 		m_pWindow = m_ToolsFactory.CreateWindow();
 		m_pWindow->Create(windowDesc);
 
-		GraphicsSpecification graphicsSpecs{
-			.backendType = GetBackendType(),
-		};
-		m_GraphicsFactory.Initialize(graphicsSpecs);
+		m_GraphicsFactory.Initialize();
+
+		m_pGraphicsApi = m_GraphicsFactory.CreateBackend(GetBackendType());
+		m_pGraphicsApi->Initialize();
 	}
 
 	void Run()
@@ -69,7 +69,7 @@ public:
 
 	void Close()
 	{
-		m_GraphicsFactory.Close();
+		m_pGraphicsApi->Close();
 		m_ToolsFactory.Close();
 	}
 
@@ -77,6 +77,7 @@ private:
 
 	ToolsFactory m_ToolsFactory{};
 	GraphicsFactory m_GraphicsFactory{};
+	std::unique_ptr<IGraphicsBackend> m_pGraphicsApi{ nullptr };
 	std::shared_ptr<Window> m_pWindow{ nullptr };
 
 };

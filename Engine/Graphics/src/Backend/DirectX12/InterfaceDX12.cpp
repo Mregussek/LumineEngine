@@ -27,9 +27,9 @@ void InterfaceDX12::Close()
 	if (m_bInitialized)
 	{
 		m_Context.Destroy();
-		m_bInitialized = false;
 	}
 
+	m_bInitialized = false;
 	DXDEBUG("Closed");
 }
 

@@ -168,10 +168,10 @@ void ContextDX12::DxCommandInterface::Create(const ComPtr<ID3D12Device10>& pDevi
 void ContextDX12::DxCommandInterface::CreateQueue(const ComPtr<ID3D12Device10>& pDevice)
 {
 	D3D12_COMMAND_QUEUE_DESC queueDesc{
-	.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-	.Priority = 0,
-	.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-	.NodeMask = 0
+		.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+		.Priority = 0,
+		.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+		.NodeMask = 0
 	};
 	HRESULT hr = pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_pCommandQueue.ReleaseAndGetAddressOf()));
 	DXASSERT(hr);
@@ -180,7 +180,27 @@ void ContextDX12::DxCommandInterface::CreateQueue(const ComPtr<ID3D12Device10>& 
 
 void ContextDX12::DxSwapchain::Create()
 {
+	DXTRACE("Creating");
 
+	/*
+	UINT Width;
+	UINT Height;
+	DXGI_FORMAT Format;
+	BOOL Stereo;
+	DXGI_SAMPLE_DESC SampleDesc;
+	DXGI_USAGE BufferUsage;
+	UINT BufferCount;
+	DXGI_SCALING Scaling;
+	DXGI_SWAP_EFFECT SwapEffect;
+	DXGI_ALPHA_MODE AlphaMode;
+	UINT Flags;
+	*/
+
+	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{
+
+	};
+
+	DXDEBUG("Created");
 }
 
 

@@ -6,7 +6,7 @@ module;
 
 export module GraphicsFactory;
 
-import BackendInterface;
+import GraphicsBackend;
 
 
 export namespace lumine::graphics
@@ -20,26 +20,13 @@ enum class EBackendType
 #endif
 };
 
-struct GraphicsSpecification
-{
-	EBackendType backendType{ EBackendType::Vulkan };
-};
-
 
 class GraphicsFactory {
 public:
 
-	~GraphicsFactory();
+	ErrorStatus Initialize();
 
-public:
-
-	ErrorStatus Initialize(GraphicsSpecification specs);
-	void Close();
-
-private:
-
-	std::unique_ptr<IBackendInterface> m_pBackend{ nullptr };
-	bool m_Initialized{ false };
+	[[nodiscard]] std::unique_ptr<IGraphicsBackend> CreateBackend(EBackendType backendType) const;
 
 };
 

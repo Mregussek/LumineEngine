@@ -6,19 +6,26 @@ module;
 
 module GraphicsFactory;
 
-import BackendInterface;
+import GraphicsBackend;
 
 
 namespace lumine::graphics
 {
 
-constexpr static std::unique_ptr<IBackendInterface> CreateBackendInterface(EBackendType backendType)
+ErrorStatus GraphicsFactory::Initialize()
+{
+	GCREATE_LOGGER();
+	GDEBUG("Initialized");
+	return ErrorStatus::OK;
+}
+
+std::unique_ptr<IGraphicsBackend> GraphicsFactory::CreateBackend(EBackendType backendType) const
 {
 	if (backendType == EBackendType::DirectX12)
 	{
 		if constexpr (LUMINE_WIN64 and LUMINE_USE_DIRECTX12)
 		{
-			return std::make_unique<BackendInterfaceDX12>();
+			return std::make_unique<GraphicsBackendDX12>();
 		}
 		else
 		{
@@ -27,49 +34,7 @@ constexpr static std::unique_ptr<IBackendInterface> CreateBackendInterface(EBack
 		}
 	}
 
-	return std::make_unique<BackedInterfaceVk>();
-}
-
-}
-
-
-namespace lumine::graphics
-{
-
-GraphicsFactory::~GraphicsFactory()
-{
-	Close();
-}
-
-ErrorStatus GraphicsFactory::Initialize(GraphicsSpecification specs)
-{
-	GCREATE_LOGGER();
-	GTRACE("Initializing");
-
-	m_pBackend = CreateBackendInterface(specs.backendType);
-	if (not m_pBackend)
-	{
-		return ErrorStatus::CREATE_FAILED;
-	}
-
-	m_pBackend->Initialize();
-
-	m_Initialized = true;
-	GDEBUG("Initialized");
-	return ErrorStatus::OK;
-}
-
-void GraphicsFactory::Close()
-{
-	GTRACE("Closing");
-
-	if (m_Initialized)
-	{
-		m_pBackend->Close();
-	}
-	
-	m_Initialized = false;
-	GDEBUG("Closed");
+	return std::make_unique<GraphicsBackendVk>();
 }
 
 }
