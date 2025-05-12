@@ -9,7 +9,11 @@ macro(LumineEnableCxxModules)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         message(FATAL_ERROR "C++ modules require MSVC or Clang with experimental support")
     endif()
+    set(CMAKE_CXX_ENABLE_MODULE_STD ON)
     set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "Yes")
+    # set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP ON)
+    set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "0e5b6991-d74f-4b3d-a41c-cf096e0b2508")
+    # set(CMAKE_CXX_MODULE_STD 1)
 endmacro()
 # -----------------
 
