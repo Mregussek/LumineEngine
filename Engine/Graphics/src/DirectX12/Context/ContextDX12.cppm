@@ -5,6 +5,7 @@ module;
 #include <wrl/client.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
+#include <vector>
 
 export module ContextDX12;
 
@@ -94,13 +95,29 @@ private:
 
 	};
 
+	struct DxDescriptorHeap
+	{
+		void Create(const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type,
+			UINT numDescriptors);
+
+		ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap{ nullptr };
+		D3D12_DESCRIPTOR_HEAP_TYPE m_Type{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
+		UINT m_NumDescriptors{ 0 };
+
+	};
+
 	struct DxSwapchain
 	{
 		void Create(const GraphicsSpecification& specs,
 					const ComPtr<IDXGIFactory7>& pFactory,
 					const ComPtr<ID3D12CommandQueue>& pCommandQueue);
 
+		void UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice, const DxDescriptorHeap& dxDescriptorHeap);
+
 		ComPtr<IDXGISwapChain4> m_pSwapchain{ nullptr };
+		UINT m_BackBufferCount{ 0 };
+
+		std::vector<ComPtr<ID3D12Resource>> m_BackBufferVector{};
 
 	private:
 
@@ -113,7 +130,9 @@ private:
 	DxFactory m_DxFactory{};
 	DxDevice m_DxDevice{};
 	DxCommandInterface m_DxCommandInterface{};
+	DxDescriptorHeap m_DxSwapchainDescriptorHeap{};
 	DxSwapchain m_DxSwapchain{};
+
 	bool m_bCreated{ false };
 
 }; // ContextDX12

@@ -6,6 +6,7 @@ module;
 #include <wrl/client.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
+#include <directx/d3dx12.h>
 #include <map>
 
 module ContextDX12;
@@ -27,6 +28,8 @@ void ContextDX12::Create(const GraphicsSpecification& specs)
 	m_DxCommandInterface.Create(m_DxDevice.m_Device);
 
 	m_DxSwapchain.Create(specs, m_DxFactory.m_pFactory, m_DxCommandInterface.m_pCommandQueue);
+	m_DxSwapchainDescriptorHeap.Create(m_DxDevice.m_Device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_DxSwapchain.m_BackBufferCount);
+	m_DxSwapchain.UpdateRTVs(m_DxDevice.m_Device, m_DxSwapchainDescriptorHeap);
 
 	m_bCreated = true;
 	DXDEBUG("Created");
@@ -268,11 +271,35 @@ void ContextDX12::DxCommandInterface::CreateQueue(const ComPtr<ID3D12Device10>& 
 }
 
 
+void ContextDX12::DxDescriptorHeap::Create(const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type,
+	UINT numDescriptors)
+{
+	DXTRACE("Creating");
+
+	m_Type = type;
+	m_NumDescriptors = numDescriptors;
+
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc{
+		.Type = m_Type,
+		.NumDescriptors = m_NumDescriptors,
+		.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+		.NodeMask = 0
+	};
+
+	HRESULT hr = pDevice->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(m_pDescriptorHeap.ReleaseAndGetAddressOf()));
+	DXASSERT(hr);
+
+	DXDEBUG("Created");
+}
+
+
 void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 									  const ComPtr<IDXGIFactory7>& pFactory,
 									  const ComPtr<ID3D12CommandQueue>& pCommandQueue)
 {
 	DXTRACE("Creating");
+
+	m_BackBufferCount = specs.swapchainBackBufferCount;
 
 	UINT flags{ 0 };
 	if (IsTearingSupported(pFactory))
@@ -289,7 +316,7 @@ void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 		.Stereo = FALSE,
 		.SampleDesc = { 1, 0 },
 		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-		.BufferCount = specs.swapchainBackBufferCount,
+		.BufferCount = m_BackBufferCount,
 		.Scaling = DXGI_SCALING_STRETCH,
 		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
 		.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
@@ -298,7 +325,7 @@ void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 	
 	ComPtr<IDXGISwapChain1> pSwapchain1{ nullptr };
 	HRESULT hr = pFactory->CreateSwapChainForHwnd(pCommandQueue.Get(), specs.windowRawHandle.hwnd, &swapchainDesc,
-												  nullptr, nullptr, &pSwapchain1);
+												  nullptr, nullptr, pSwapchain1.ReleaseAndGetAddressOf());
 	DXASSERT(hr);
 
 	// Disable the Alt+Enter full-screen toggle feature. Switching to full-screen will be handled manually.
@@ -308,7 +335,35 @@ void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 	hr = pSwapchain1.As(&m_pSwapchain);
 	DXASSERT(hr);
 
+	m_BackBufferVector.resize(m_BackBufferCount);
+
 	DXDEBUG("Created");
+}
+
+
+void ContextDX12::DxSwapchain::UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice, const DxDescriptorHeap& dxDescriptorHeap)
+{
+	DXTRACE("Updating");
+
+	UINT rtvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(dxDescriptorHeap.m_Type);
+	D3D12_CPU_DESCRIPTOR_HANDLE descHandle = dxDescriptorHeap.m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descHandle);
+
+	for (UINT i = 0; i < m_BackBufferCount; ++i)
+	{
+		ComPtr<ID3D12Resource> pBackBuffer{ nullptr };
+
+		HRESULT hr = m_pSwapchain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
+		DXASSERT(hr);
+
+		pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, rtvHandle);
+
+		m_BackBufferVector[i] = pBackBuffer;
+
+		rtvHandle.Offset(rtvDescriptorSize);
+	}
+
+	DXDEBUG("Updated");
 }
 
 

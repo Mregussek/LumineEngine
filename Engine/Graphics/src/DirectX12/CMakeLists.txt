@@ -24,6 +24,7 @@ target_include_directories(Lumine_DirectX12
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${LUMINE_UTIL_INCLUDE_DIR}
+        ${DXHEADERS_INCLUDE_DIR_LUMINE}
 )
 target_link_libraries(Lumine_DirectX12
     PRIVATE
@@ -32,6 +33,8 @@ target_link_libraries(Lumine_DirectX12
         dxgi.lib
         d3d12.lib
         d3dcompiler.lib
+        DirectX-Headers
+        DirectX-Guids
 )
 target_compile_features(Lumine_DirectX12 PUBLIC cxx_std_23)
 target_compile_definitions(Lumine_DirectX12

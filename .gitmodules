@@ -13,3 +13,6 @@
 [submodule "Engine/Tools/3rdparty/stb"]
 	path = Engine/Tools/3rdparty/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Engine/Graphics/3rdparty/DirectX-Headers"]
+	path = Engine/Graphics/3rdparty/DirectX-Headers
+	url = https://github.com/microsoft/DirectX-Headers.git
