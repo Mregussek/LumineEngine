@@ -34,13 +34,3 @@ import Logger;
 		throw std::runtime_error(errStr); \
 	} \
 }
-
-#define DXCHECK(__boolean) \
-{ \
-	if (not __boolean) \
-	{ \
-		const std::string errStr = "DX12 Check failed"; \
-		DXERROR(errStr.c_str()); \
-		throw std::runtime_error(errStr); \
-	} \
-}

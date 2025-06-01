@@ -25,15 +25,26 @@ public:
 
 private:
 
-	struct DxFactoryDebug
+
+	class DxFactoryDebug
 	{
+	public:
+
 		void Enable(UINT& dxgiFactoryFlags);
 
-		ComPtr<ID3D12Debug6> m_Handle{ nullptr };
+		[[nodiscard]] const ComPtr<ID3D12Debug6>& Handle() const { return m_pHandle; }
+
+	private:
+
+		ComPtr<ID3D12Debug6> m_pHandle{ nullptr };
+
 	};
 
-	struct DxAdapterSelector
+
+	class DxAdapterSelector
 	{
+	public:
+
 		static ComPtr<IDXGIAdapter4> Select(const ComPtr<IDXGIFactory7>& pFactoryHandle);
 
 	private:
@@ -42,82 +53,147 @@ private:
 
 	};
 
-	struct DxFactory
+
+	class DxFactory
 	{
+	public:
+
 		void Create();
 
-		ComPtr<IDXGIFactory7> m_pFactory{ nullptr };
-		ComPtr<IDXGIAdapter4> m_pAdapter{ nullptr };
-#if LUMINE_DEBUG
-		DxFactoryDebug m_DebugFactory{};
-#endif
+		[[nodiscard]] const ComPtr<IDXGIFactory7> Handle() const { return m_pFactory; }
+		[[nodiscard]] const ComPtr<IDXGIAdapter4> Adapter() const { return m_pAdapter; }
 
 	private:
 
 		void CreateFactory();
 		void SelectAdapter();
 
+	private:
+
+		ComPtr<IDXGIFactory7> m_pFactory{ nullptr };
+		ComPtr<IDXGIAdapter4> m_pAdapter{ nullptr };
+#if LUMINE_DEBUG
+		DxFactoryDebug m_DebugFactory{};
+#endif
 	};
 
-	struct DxDeviceDebug
+
+	class DxDeviceDebug
 	{
+	public:
+
 		void Enable(const ComPtr<ID3D12Device10>& pDevice);
 		void Report();
 
-		ComPtr<ID3D12DebugDevice2> m_Handle{ nullptr };
+	private:
+
+		ComPtr<ID3D12DebugDevice2> m_pHandle{ nullptr };
+
 	};
 
-	struct DxDevice
+
+	class DxDevice
 	{
+	public:
+
 		void Create(const ComPtr<IDXGIAdapter4>& pAdapter);
 		void Destroy();
 
-		ComPtr<ID3D12Device10> m_Device{ nullptr };
+		[[nodiscard]] const ComPtr<ID3D12Device10>& Handle() const { return m_pHandle; }
+
+	private:
+
+		ComPtr<ID3D12Device10> m_pHandle{ nullptr };
 
 #if LUMINE_DEBUG
 		DxDeviceDebug m_DebugDevice{};
 #endif
 	};
 
-	struct DxCommandAllocator
+
+	class DxCommandQueue
 	{
-		ComPtr<ID3D12CommandAllocator> m_pCommandAllocator{ nullptr };
+	public:
+
+		void Create(const ComPtr<ID3D12Device10>& pDevice);
+
+		[[nodiscard]] const ComPtr<ID3D12CommandQueue>& Handle() const { return m_pHandle; }
+
+	private:
+
+		ComPtr<ID3D12CommandQueue> m_pHandle{ nullptr };
+
+	};
+
+
+	class DxCommandAllocator
+	{
+	public:
+
+		void Create(const ComPtr<ID3D12Device10>& pDevice, D3D12_COMMAND_LIST_TYPE type);
+
+		[[nodiscard]] const ComPtr<ID3D12CommandAllocator>& Handle() const { return m_pHandle; }
+		[[nodiscard]] D3D12_COMMAND_LIST_TYPE Type() const { return m_Type; }
+
+	private:
+
+		ComPtr<ID3D12CommandAllocator> m_pHandle{ nullptr };
 		D3D12_COMMAND_LIST_TYPE m_Type{ D3D12_COMMAND_LIST_TYPE_NONE };
 	};
 
-	struct DxCommandCreator
+
+	class DxCommandList
 	{
-		[[nodiscard]] static ComPtr<ID3D12CommandQueue> CreateQueue(const ComPtr<ID3D12Device10>& pDevice);
+	public:
 
-		[[nodiscard]] static DxCommandAllocator CreateAllocator(
-			const ComPtr<ID3D12Device10>& pDevice, D3D12_COMMAND_LIST_TYPE type);
+		void Create(const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator);
 
-		[[nodiscard]] static ComPtr<ID3D12GraphicsCommandList> CreateGraphicsList(
-			const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator);
+		[[nodiscard]] const ComPtr<ID3D12GraphicsCommandList>& Handle() const { return m_pHandle; }
+
+	private:
+
+		ComPtr<ID3D12GraphicsCommandList> m_pHandle{ nullptr };
+
 	};
 
-	struct DxDescriptorHeapCreator
+
+	class DxDescriptorHeap
 	{
-		[[nodiscard]] static ComPtr<ID3D12DescriptorHeap> Create(
-			const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT numDescriptors);
+	public:
+
+		void Create(const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type,
+					UINT numDescriptors);
+
+		[[nodiscard]] const ComPtr<ID3D12DescriptorHeap>& Handle() const { return m_pHandle; }
+		[[nodiscard]] D3D12_DESCRIPTOR_HEAP_TYPE Type() const { return m_Type; }
+		[[nodiscard]] UINT Num() const { return m_NumDescriptors; }
+	
+	private:
+
+		ComPtr<ID3D12DescriptorHeap> m_pHandle{ nullptr };
+		D3D12_DESCRIPTOR_HEAP_TYPE m_Type{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
+		UINT m_NumDescriptors{ 0 };
+
 	};
+
 
 	struct DxSwapchain
 	{
 		void Create(const GraphicsSpecification& specs,
-					const ComPtr<IDXGIFactory7>& pFactory,
-					const ComPtr<ID3D12Device10>& pDevice,
-					const ComPtr<ID3D12CommandQueue>& pCommandQueue);
+			const ComPtr<IDXGIFactory7>& pFactory,
+			const ComPtr<ID3D12Device10>& pDevice,
+			const ComPtr<ID3D12CommandQueue>& pCommandQueue);
 
 		void UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice);
 
+		[[nodiscard]] UINT GetCurrentFrameIndex() const;
+
 
 		ComPtr<IDXGISwapChain4> m_pSwapchain{ nullptr };
-		ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap{ nullptr };
-		const D3D12_DESCRIPTOR_HEAP_TYPE m_DescriptorHeapType{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
-		UINT m_BackBufferCount{ 0 };
+		DxDescriptorHeap m_DxRtvHeap{};
 
 		std::vector<ComPtr<ID3D12Resource>> m_BackBufferVector{};
+		UINT m_BackBufferCount{ 0 };
 
 	private:
 
@@ -125,10 +201,21 @@ private:
 
 	};
 
-	struct DxFenceCreator
+
+	class DxFence
 	{
-		[[nodiscard]] static ComPtr<ID3D12Fence1> Create(const ComPtr<ID3D12Device10>& pDevice);
+	public:
+
+		void Create(const ComPtr<ID3D12Device10>& pDevice);
+
+		[[nodiscard]] const ComPtr<ID3D12Fence1>& Handle() const { return m_pHandle; }
+
+	private:
+
+		ComPtr<ID3D12Fence1> m_pHandle{ nullptr };
+
 	};
+
 
 	struct DxFenceEvent
 	{
@@ -137,17 +224,19 @@ private:
 		HANDLE m_FenceEvent{ nullptr };
 	};
 
+
 private:
 
+	// Rendering Pipeline Dependencies
 	DxFactory m_DxFactory{};
 	DxDevice m_DxDevice{};
-	ComPtr<ID3D12CommandQueue> m_pCommandQueue{ nullptr };
+	DxCommandQueue m_DxCmdQueue{};
 	DxSwapchain m_DxSwapchain{};
+	std::vector<DxCommandAllocator> m_pDxCmdAllocators{};
 
-	std::vector<DxCommandAllocator> m_pCommandAllocators{};
-	ComPtr<ID3D12GraphicsCommandList> m_CommandListGraphics{ nullptr };
-	
-	ComPtr<ID3D12Fence1> m_pFence{ nullptr };
+	// Sample Assets
+	DxCommandList m_DxCmdList{};
+	DxFence m_DxFence{};
 	DxFenceEvent m_DxFenceEvent{};
 
 	bool m_bCreated{ false };

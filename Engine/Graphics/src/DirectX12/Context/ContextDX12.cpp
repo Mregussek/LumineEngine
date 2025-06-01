@@ -25,23 +25,21 @@ void ContextDX12::Create(const GraphicsSpecification& specs)
 	DXTRACE("Creating");
 
 	m_DxFactory.Create();
-	m_DxDevice.Create(m_DxFactory.m_pAdapter);
-	m_pCommandQueue = DxCommandCreator::CreateQueue(m_DxDevice.m_Device);
+	m_DxDevice.Create(m_DxFactory.Adapter());
+	m_DxCmdQueue.Create(m_DxDevice.Handle());
 
-	m_DxSwapchain.Create(specs, m_DxFactory.m_pFactory, m_DxDevice.m_Device, m_pCommandQueue);
-	m_DxSwapchain.UpdateRTVs(m_DxDevice.m_Device);
+	m_DxSwapchain.Create(specs, m_DxFactory.Handle(), m_DxDevice.Handle(), m_DxCmdQueue.Handle());
+	m_DxSwapchain.UpdateRTVs(m_DxDevice.Handle());
 
-	m_pCommandAllocators.resize(m_DxSwapchain.m_BackBufferCount);
+	m_pDxCmdAllocators.resize(m_DxSwapchain.m_BackBufferCount);
 	for (UINT i = 0; i < m_DxSwapchain.m_BackBufferCount; i++)
 	{
-		m_pCommandAllocators[i] = DxCommandCreator::CreateAllocator(m_DxDevice.m_Device,
-																	D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_pDxCmdAllocators[i].Create(m_DxDevice.Handle(), D3D12_COMMAND_LIST_TYPE_DIRECT);
 	}
 
-	UINT backBufferCurrentIndex = m_DxSwapchain.m_pSwapchain->GetCurrentBackBufferIndex();
-	m_CommandListGraphics = DxCommandCreator::CreateGraphicsList(m_DxDevice.m_Device, m_pCommandAllocators[backBufferCurrentIndex]);
-
-	m_pFence = DxFenceCreator::Create(m_DxDevice.m_Device);
+	UINT frameCurrentIndex = m_DxSwapchain.GetCurrentFrameIndex();
+	m_DxCmdList.Create(m_DxDevice.Handle(), m_pDxCmdAllocators[frameCurrentIndex]);
+	m_DxFence.Create(m_DxDevice.Handle());
 	m_DxFenceEvent.Create();
 
 	m_bCreated = true;
@@ -71,17 +69,37 @@ void ContextDX12::DxFactoryDebug::Enable(UINT& dxgiFactoryFlags)
 	HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&pTmpDebug));
 	DXASSERT(hr);
 
-	hr = pTmpDebug->QueryInterface(IID_PPV_ARGS(&m_Handle));
+	hr = pTmpDebug->QueryInterface(IID_PPV_ARGS(&m_pHandle));
 	DXASSERT(hr);
 
-	m_Handle->EnableDebugLayer();
-	m_Handle->SetEnableGPUBasedValidation(true);
+	m_pHandle->EnableDebugLayer();
+	m_pHandle->SetEnableGPUBasedValidation(true);
 
 	dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 
 	pTmpDebug->Release();
 
 	DXTRACE("Enabled Factory");
+}
+
+
+ComPtr<IDXGIAdapter4> ContextDX12::DxAdapterSelector::Select(const ComPtr<IDXGIFactory7>& pFactoryHandle)
+{
+	IDXGIAdapter4* pAdapter;
+	u32 adapterIndex = 0;
+
+	std::multimap<u32, u32> ratings;
+	while (pFactoryHandle->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&pAdapter)) != DXGI_ERROR_NOT_FOUND)
+	{
+		ratings.insert(std::make_pair(GetScore(pAdapter), adapterIndex));
+		adapterIndex++;
+	}
+
+	u32 selectedAdapter = ratings.rbegin()->second;
+	HRESULT hr = pFactoryHandle->EnumAdapterByGpuPreference(selectedAdapter, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&pAdapter));
+	DXASSERT(hr);
+
+	return pAdapter;
 }
 
 
@@ -111,26 +129,6 @@ u32 ContextDX12::DxAdapterSelector::GetScore(IDXGIAdapter4* pAdapter)
 
 	DXTRACE("Adapter {}; VRAM {}; Score {}", gpuName, vramMb, score);
 	return score;
-}
-
-
-ComPtr<IDXGIAdapter4> ContextDX12::DxAdapterSelector::Select(const ComPtr<IDXGIFactory7>& pFactoryHandle)
-{
-	IDXGIAdapter4* pAdapter;
-	u32 adapterIndex = 0;
-
-	std::multimap<u32, u32> ratings;
-	while (pFactoryHandle->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&pAdapter)) != DXGI_ERROR_NOT_FOUND)
-	{
-		ratings.insert(std::make_pair(GetScore(pAdapter), adapterIndex));
-		adapterIndex++;
-	}
-
-	u32 selectedAdapter = ratings.rbegin()->second;
-	HRESULT hr = pFactoryHandle->EnumAdapterByGpuPreference(selectedAdapter, DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&pAdapter));
-	DXASSERT(hr);
-
-	return pAdapter;
 }
 
 
@@ -236,13 +234,13 @@ void ContextDX12::DxDevice::Create(const ComPtr<IDXGIAdapter4>& pAdapter)
 {
 	DXTRACE("Creating");
 
-	HRESULT hr = D3D12CreateDevice(pAdapter.Get(), L_D3D12_MIN_FEATURE_LEVEL, IID_PPV_ARGS(m_Device.ReleaseAndGetAddressOf()));
+	HRESULT hr = D3D12CreateDevice(pAdapter.Get(), L_D3D12_MIN_FEATURE_LEVEL, IID_PPV_ARGS(m_pHandle.ReleaseAndGetAddressOf()));
 	DXASSERT(hr);
 
-	m_Device->SetName(L"LumineEngineGraphicsBackendD3D12");
+	m_pHandle->SetName(L"LumineEngineGraphicsBackendD3D12");
 
 #if LUMINE_DEBUG
-	m_DebugDevice.Enable(m_Device);
+	m_DebugDevice.Enable(m_pHandle);
 #endif
 
 	DXDEBUG("Created");
@@ -261,11 +259,22 @@ void ContextDX12::DxDevice::Destroy()
 }
 
 
-ComPtr<ID3D12CommandQueue> ContextDX12::DxCommandCreator::CreateQueue(const ComPtr<ID3D12Device10>& pDevice)
+void ContextDX12::DxCommandAllocator::Create(const ComPtr<ID3D12Device10>& pDevice,
+	D3D12_COMMAND_LIST_TYPE type)
 {
 	DXTRACE("Creating");
 
-	ComPtr<ID3D12CommandQueue> pCommandQueue{ nullptr };
+	m_Type = type;
+	HRESULT hr = pDevice->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pHandle));
+	DXASSERT(hr);
+
+	DXDEBUG("Created");
+}
+
+
+void ContextDX12::DxCommandQueue::Create(const ComPtr<ID3D12Device10>& pDevice)
+{
+	DXTRACE("Creating");
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc{
 		.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -273,73 +282,52 @@ ComPtr<ID3D12CommandQueue> ContextDX12::DxCommandCreator::CreateQueue(const ComP
 		.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
 		.NodeMask = 0
 	};
-	HRESULT hr = pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(pCommandQueue.ReleaseAndGetAddressOf()));
+	HRESULT hr = pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_pHandle.ReleaseAndGetAddressOf()));
 	DXASSERT(hr);
 
 	DXDEBUG("Created");
-	return pCommandQueue;
 }
 
 
-ContextDX12::DxCommandAllocator ContextDX12::DxCommandCreator::CreateAllocator(const ComPtr<ID3D12Device10>& pDevice,
-																			   D3D12_COMMAND_LIST_TYPE type)
+void ContextDX12::DxCommandList::Create(const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator)
 {
 	DXTRACE("Creating");
-
-	ComPtr<ID3D12CommandAllocator> pCommandAllocator{ nullptr };
-
-	HRESULT hr = pDevice->CreateCommandAllocator(type, IID_PPV_ARGS(&pCommandAllocator));
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
-	return DxCommandAllocator{
-		.m_pCommandAllocator = pCommandAllocator,
-		.m_Type = type
-	};
-}
-
-
-ComPtr<ID3D12GraphicsCommandList> ContextDX12::DxCommandCreator::CreateGraphicsList(
-	const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator)
-{
-	DXTRACE("Creating");
-
-	ComPtr<ID3D12GraphicsCommandList> pCommandList{ nullptr };
 
 	UINT nodeMask = 0;
 	ID3D12PipelineState* pPipelinInitialState{ nullptr };
-	HRESULT hr = pDevice->CreateCommandList(nodeMask, dxCommandAllocator.m_Type,
-											dxCommandAllocator.m_pCommandAllocator.Get(), pPipelinInitialState,
-											IID_PPV_ARGS(&pCommandList));
+	HRESULT hr = pDevice->CreateCommandList(nodeMask, dxCommandAllocator.Type(),
+											dxCommandAllocator.Handle().Get(),
+											pPipelinInitialState,
+											IID_PPV_ARGS(&m_pHandle));
 	DXASSERT(hr);
 
-	hr = pCommandList->Close();
+	hr = m_pHandle->Close();
 	DXASSERT(hr);
 
 	DXDEBUG("Created");
-	return pCommandList;
 }
 
 
-ComPtr<ID3D12DescriptorHeap> ContextDX12::DxDescriptorHeapCreator::Create(const ComPtr<ID3D12Device10>& pDevice,
-																		  D3D12_DESCRIPTOR_HEAP_TYPE type,
-																		  UINT numDescriptors)
+void ContextDX12::DxDescriptorHeap::Create(const ComPtr<ID3D12Device10>& pDevice,
+										   D3D12_DESCRIPTOR_HEAP_TYPE type,
+										   UINT numDescriptors)
 {
 	DXTRACE("Creating");
 
+	m_Type = type;
+	m_NumDescriptors = numDescriptors;
+
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc{
-		.Type = type,
-		.NumDescriptors = numDescriptors,
+		.Type = m_Type,
+		.NumDescriptors = m_NumDescriptors,
 		.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 		.NodeMask = 0
 	};
 
-	ComPtr<ID3D12DescriptorHeap> pDescriptorHeap{ nullptr };
-	HRESULT hr = pDevice->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(pDescriptorHeap.ReleaseAndGetAddressOf()));
+	HRESULT hr = pDevice->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(m_pHandle.ReleaseAndGetAddressOf()));
 	DXASSERT(hr);
 
 	DXDEBUG("Created");
-	return pDescriptorHeap;
 }
 
 
@@ -365,7 +353,7 @@ void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 		.Height = specs.windowHeight,
 		.Format = format,
 		.Stereo = FALSE,
-		.SampleDesc = { 1, 0 },
+		.SampleDesc = DXGI_SAMPLE_DESC{ .Count = 1, .Quality = 0 },
 		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
 		.BufferCount = m_BackBufferCount,
 		.Scaling = DXGI_SCALING_STRETCH,
@@ -387,7 +375,7 @@ void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 	DXASSERT(hr);
 
 	m_BackBufferVector.resize(m_BackBufferCount);
-	m_pDescriptorHeap = DxDescriptorHeapCreator::Create(pDevice, m_DescriptorHeapType, m_BackBufferCount);
+	m_DxRtvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_BackBufferCount);
 
 	DXDEBUG("Created");
 }
@@ -397,8 +385,8 @@ void ContextDX12::DxSwapchain::UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice)
 {
 	DXTRACE("Updating");
 
-	UINT rtvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(m_DescriptorHeapType);
-	D3D12_CPU_DESCRIPTOR_HANDLE descHandle = m_pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT rtvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(m_DxRtvHeap.Type());
+	D3D12_CPU_DESCRIPTOR_HANDLE descHandle = m_DxRtvHeap.Handle()->GetCPUDescriptorHandleForHeapStart();
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descHandle);
 
 	for (UINT i = 0; i < m_BackBufferCount; ++i)
@@ -408,6 +396,11 @@ void ContextDX12::DxSwapchain::UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice)
 		HRESULT hr = m_pSwapchain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
 		DXASSERT(hr);
 
+		{
+			std::wstring backBufferName{ L"SwapchainBuffer_" + std::to_wstring(i) };
+			pBackBuffer->SetName(backBufferName.c_str());
+		}
+
 		pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, rtvHandle);
 
 		m_BackBufferVector[i] = pBackBuffer;
@@ -416,6 +409,12 @@ void ContextDX12::DxSwapchain::UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice)
 	}
 
 	DXDEBUG("Updated");
+}
+
+
+UINT ContextDX12::DxSwapchain::GetCurrentFrameIndex() const
+{
+	return m_pSwapchain->GetCurrentBackBufferIndex();
 }
 
 
@@ -435,16 +434,14 @@ bool ContextDX12::DxSwapchain::IsTearingSupported(const ComPtr<IDXGIFactory7>& p
 }
 
 
-ComPtr<ID3D12Fence1> ContextDX12::DxFenceCreator::Create(const ComPtr<ID3D12Device10>& pDevice)
+void ContextDX12::DxFence::Create(const ComPtr<ID3D12Device10>& pDevice)
 {
 	DXTRACE("Creating");
 
-	ComPtr<ID3D12Fence1> pFence{ nullptr };
-	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pFence));
+	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pHandle));
 	DXASSERT(hr);
 
 	DXDEBUG("Created");
-	return pFence;
 }
 
 
@@ -453,7 +450,10 @@ void ContextDX12::DxFenceEvent::Create()
 	DXTRACE("Creating");
 
 	m_FenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-	DXCHECK(m_FenceEvent);
+	if (not m_FenceEvent)
+	{
+		DXASSERT(HRESULT_FROM_WIN32(GetLastError()));
+	}
 	
 	DXDEBUG("Created");
 }
