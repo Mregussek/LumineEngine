@@ -19,7 +19,7 @@ void InterfaceDX12::Initialize(const GraphicsSpecification& specs)
 	m_Context.Create(specs);
 
 	m_bInitialized = true;
-	DXDEBUG("Initialized");
+	DXINFO("Initialized");
 }
 
 void InterfaceDX12::Close()
@@ -32,7 +32,7 @@ void InterfaceDX12::Close()
 	}
 
 	m_bInitialized = false;
-	DXDEBUG("Closed");
+	DXINFO("Closed");
 }
 
 }

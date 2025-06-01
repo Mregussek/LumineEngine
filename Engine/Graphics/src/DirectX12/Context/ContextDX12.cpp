@@ -26,7 +26,7 @@ void ContextDX12::Create(const GraphicsSpecification& specs)
 
 	m_DxFactory.Create();
 	m_DxDevice.Create(m_DxFactory.m_pAdapter);
-	m_pCommandQueue = DxCommandInterface::CreateQueue(m_DxDevice.m_Device);
+	m_pCommandQueue = DxCommandCreator::CreateQueue(m_DxDevice.m_Device);
 
 	m_DxSwapchain.Create(specs, m_DxFactory.m_pFactory, m_DxDevice.m_Device, m_pCommandQueue);
 	m_DxSwapchain.UpdateRTVs(m_DxDevice.m_Device);
@@ -34,12 +34,15 @@ void ContextDX12::Create(const GraphicsSpecification& specs)
 	m_pCommandAllocators.resize(m_DxSwapchain.m_BackBufferCount);
 	for (UINT i = 0; i < m_DxSwapchain.m_BackBufferCount; i++)
 	{
-		m_pCommandAllocators[i] = DxCommandInterface::CreateAllocator(m_DxDevice.m_Device,
-																	  D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_pCommandAllocators[i] = DxCommandCreator::CreateAllocator(m_DxDevice.m_Device,
+																	D3D12_COMMAND_LIST_TYPE_DIRECT);
 	}
 
 	UINT backBufferCurrentIndex = m_DxSwapchain.m_pSwapchain->GetCurrentBackBufferIndex();
-	m_CommandListGraphics = DxCommandInterface::CreateGraphicsList(m_DxDevice.m_Device, m_pCommandAllocators[backBufferCurrentIndex]);
+	m_CommandListGraphics = DxCommandCreator::CreateGraphicsList(m_DxDevice.m_Device, m_pCommandAllocators[backBufferCurrentIndex]);
+
+	m_pFence = DxFenceCreator::Create(m_DxDevice.m_Device);
+	m_DxFenceEvent.Create();
 
 	m_bCreated = true;
 	DXDEBUG("Created");
@@ -258,7 +261,7 @@ void ContextDX12::DxDevice::Destroy()
 }
 
 
-ComPtr<ID3D12CommandQueue> ContextDX12::DxCommandInterface::CreateQueue(const ComPtr<ID3D12Device10>& pDevice)
+ComPtr<ID3D12CommandQueue> ContextDX12::DxCommandCreator::CreateQueue(const ComPtr<ID3D12Device10>& pDevice)
 {
 	DXTRACE("Creating");
 
@@ -278,8 +281,8 @@ ComPtr<ID3D12CommandQueue> ContextDX12::DxCommandInterface::CreateQueue(const Co
 }
 
 
-ContextDX12::DxCommandAllocator ContextDX12::DxCommandInterface::CreateAllocator(const ComPtr<ID3D12Device10>& pDevice,
-																				 D3D12_COMMAND_LIST_TYPE type)
+ContextDX12::DxCommandAllocator ContextDX12::DxCommandCreator::CreateAllocator(const ComPtr<ID3D12Device10>& pDevice,
+																			   D3D12_COMMAND_LIST_TYPE type)
 {
 	DXTRACE("Creating");
 
@@ -296,7 +299,7 @@ ContextDX12::DxCommandAllocator ContextDX12::DxCommandInterface::CreateAllocator
 }
 
 
-ComPtr<ID3D12GraphicsCommandList> ContextDX12::DxCommandInterface::CreateGraphicsList(
+ComPtr<ID3D12GraphicsCommandList> ContextDX12::DxCommandCreator::CreateGraphicsList(
 	const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator)
 {
 	DXTRACE("Creating");
@@ -318,9 +321,9 @@ ComPtr<ID3D12GraphicsCommandList> ContextDX12::DxCommandInterface::CreateGraphic
 }
 
 
-ComPtr<ID3D12DescriptorHeap> ContextDX12::DxDescriptorHeap::Create(const ComPtr<ID3D12Device10>& pDevice,
-																				   D3D12_DESCRIPTOR_HEAP_TYPE type,
-																				   UINT numDescriptors)
+ComPtr<ID3D12DescriptorHeap> ContextDX12::DxDescriptorHeapCreator::Create(const ComPtr<ID3D12Device10>& pDevice,
+																		  D3D12_DESCRIPTOR_HEAP_TYPE type,
+																		  UINT numDescriptors)
 {
 	DXTRACE("Creating");
 
@@ -384,7 +387,7 @@ void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
 	DXASSERT(hr);
 
 	m_BackBufferVector.resize(m_BackBufferCount);
-	m_pDescriptorHeap = DxDescriptorHeap::Create(pDevice, m_DescriptorHeapType, m_BackBufferCount);
+	m_pDescriptorHeap = DxDescriptorHeapCreator::Create(pDevice, m_DescriptorHeapType, m_BackBufferCount);
 
 	DXDEBUG("Created");
 }
@@ -429,6 +432,30 @@ bool ContextDX12::DxSwapchain::IsTearingSupported(const ComPtr<IDXGIFactory7>& p
 
 	DXWARN("Tearing is not supported");
 	return false;
+}
+
+
+ComPtr<ID3D12Fence1> ContextDX12::DxFenceCreator::Create(const ComPtr<ID3D12Device10>& pDevice)
+{
+	DXTRACE("Creating");
+
+	ComPtr<ID3D12Fence1> pFence{ nullptr };
+	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pFence));
+	DXASSERT(hr);
+
+	DXDEBUG("Created");
+	return pFence;
+}
+
+
+void ContextDX12::DxFenceEvent::Create()
+{
+	DXTRACE("Creating");
+
+	m_FenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+	DXCHECK(m_FenceEvent);
+	
+	DXDEBUG("Created");
 }
 
 

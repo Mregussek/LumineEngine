@@ -24,12 +24,22 @@ import Logger;
 #define DXERROR(msg, ...) ::lumine::Logger::error("LumineDX12", msg, __FILE__, __LINE__, DX_FUNCTION_SIG, __VA_ARGS__)
 #define DXCRITICAL(msg, ...) ::lumine::Logger::critical("LumineDX12", msg, __FILE__, __LINE__, DX_FUNCTION_SIG, __VA_ARGS__)
 
-#define DXASSERT(hr) \
+#define DXASSERT(__hr) \
 { \
-	if (FAILED(hr)) \
+	if (FAILED(__hr)) \
 	{ \
-		_com_error comErr{ hr }; \
-		std::string errStr = "DX12 Assert: " + std::string{ comErr.ErrorMessage() }; \
+		const _com_error comErr{ __hr }; \
+		const std::string errStr = "DX12 Assert: " + std::string{ comErr.ErrorMessage() }; \
+		DXERROR(errStr.c_str()); \
+		throw std::runtime_error(errStr); \
+	} \
+}
+
+#define DXCHECK(__boolean) \
+{ \
+	if (not __boolean) \
+	{ \
+		const std::string errStr = "DX12 Check failed"; \
 		DXERROR(errStr.c_str()); \
 		throw std::runtime_error(errStr); \
 	} \

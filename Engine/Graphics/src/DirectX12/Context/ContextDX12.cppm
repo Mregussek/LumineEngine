@@ -85,7 +85,7 @@ private:
 		D3D12_COMMAND_LIST_TYPE m_Type{ D3D12_COMMAND_LIST_TYPE_NONE };
 	};
 
-	struct DxCommandInterface
+	struct DxCommandCreator
 	{
 		[[nodiscard]] static ComPtr<ID3D12CommandQueue> CreateQueue(const ComPtr<ID3D12Device10>& pDevice);
 
@@ -96,7 +96,7 @@ private:
 			const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator);
 	};
 
-	struct DxDescriptorHeap
+	struct DxDescriptorHeapCreator
 	{
 		[[nodiscard]] static ComPtr<ID3D12DescriptorHeap> Create(
 			const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT numDescriptors);
@@ -125,6 +125,18 @@ private:
 
 	};
 
+	struct DxFenceCreator
+	{
+		[[nodiscard]] static ComPtr<ID3D12Fence1> Create(const ComPtr<ID3D12Device10>& pDevice);
+	};
+
+	struct DxFenceEvent
+	{
+		void Create();
+
+		HANDLE m_FenceEvent{ nullptr };
+	};
+
 private:
 
 	DxFactory m_DxFactory{};
@@ -133,8 +145,11 @@ private:
 	DxSwapchain m_DxSwapchain{};
 
 	std::vector<DxCommandAllocator> m_pCommandAllocators{};
-	ComPtr<ID3D12GraphicsCommandList> m_CommandListGraphics{};
+	ComPtr<ID3D12GraphicsCommandList> m_CommandListGraphics{ nullptr };
 	
+	ComPtr<ID3D12Fence1> m_pFence{ nullptr };
+	DxFenceEvent m_DxFenceEvent{};
+
 	bool m_bCreated{ false };
 
 }; // ContextDX12
