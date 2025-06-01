@@ -3,6 +3,7 @@ module;
 
 #include "Types.h"
 #include <wrl/client.h>
+using namespace Microsoft::WRL;
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <vector>
@@ -17,9 +18,6 @@ export namespace lumine::graphics::dx12
 
 class ContextDX12
 {
-
-template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
 public:
 
 	void Create(const GraphicsSpecification& specs);
@@ -81,40 +79,42 @@ private:
 #endif
 	};
 
+	struct DxCommandAllocator
+	{
+		ComPtr<ID3D12CommandAllocator> m_pCommandAllocator{ nullptr };
+		D3D12_COMMAND_LIST_TYPE m_Type{ D3D12_COMMAND_LIST_TYPE_NONE };
+	};
+
 	struct DxCommandInterface
 	{
-		void Create(const ComPtr<ID3D12Device10>& pDevice);
+		[[nodiscard]] static ComPtr<ID3D12CommandQueue> CreateQueue(const ComPtr<ID3D12Device10>& pDevice);
 
-		ComPtr<ID3D12CommandQueue> m_pCommandQueue{ nullptr };
-		ComPtr<ID3D12CommandAllocator> m_pCommandAllocator{ nullptr };
-		ComPtr<ID3D12GraphicsCommandList> m_pCommandList{ nullptr };
+		[[nodiscard]] static DxCommandAllocator CreateAllocator(
+			const ComPtr<ID3D12Device10>& pDevice, D3D12_COMMAND_LIST_TYPE type);
 
-	private:
-
-		void CreateQueue(const ComPtr<ID3D12Device10>& pDevice);
-
+		[[nodiscard]] static ComPtr<ID3D12GraphicsCommandList> CreateGraphicsList(
+			const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator);
 	};
 
 	struct DxDescriptorHeap
 	{
-		void Create(const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type,
-			UINT numDescriptors);
-
-		ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap{ nullptr };
-		D3D12_DESCRIPTOR_HEAP_TYPE m_Type{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
-		UINT m_NumDescriptors{ 0 };
-
+		[[nodiscard]] static ComPtr<ID3D12DescriptorHeap> Create(
+			const ComPtr<ID3D12Device10>& pDevice, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT numDescriptors);
 	};
 
 	struct DxSwapchain
 	{
 		void Create(const GraphicsSpecification& specs,
 					const ComPtr<IDXGIFactory7>& pFactory,
+					const ComPtr<ID3D12Device10>& pDevice,
 					const ComPtr<ID3D12CommandQueue>& pCommandQueue);
 
-		void UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice, const DxDescriptorHeap& dxDescriptorHeap);
+		void UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice);
+
 
 		ComPtr<IDXGISwapChain4> m_pSwapchain{ nullptr };
+		ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap{ nullptr };
+		const D3D12_DESCRIPTOR_HEAP_TYPE m_DescriptorHeapType{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
 		UINT m_BackBufferCount{ 0 };
 
 		std::vector<ComPtr<ID3D12Resource>> m_BackBufferVector{};
@@ -129,10 +129,12 @@ private:
 
 	DxFactory m_DxFactory{};
 	DxDevice m_DxDevice{};
-	DxCommandInterface m_DxCommandInterface{};
-	DxDescriptorHeap m_DxSwapchainDescriptorHeap{};
+	ComPtr<ID3D12CommandQueue> m_pCommandQueue{ nullptr };
 	DxSwapchain m_DxSwapchain{};
 
+	std::vector<DxCommandAllocator> m_pCommandAllocators{};
+	ComPtr<ID3D12GraphicsCommandList> m_CommandListGraphics{};
+	
 	bool m_bCreated{ false };
 
 }; // ContextDX12

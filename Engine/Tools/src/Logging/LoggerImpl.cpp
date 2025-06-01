@@ -22,13 +22,18 @@ void LoggerImpl::create(const char* loggerName)
 
 
 static std::string RemoveArgsFromFunc(std::string_view sig) {
-	size_t start = sig.find("lumine");
-	if (start == std::string_view::npos)
+	size_t start = sig.find("__cdecl ");
+	if (start != std::string_view::npos)
 	{
-		start = 0;
+		sig = sig.substr(start);
 	}
-	sig = sig.substr(start);
 
+	start = sig.find("lumine");
+	if (start != std::string_view::npos)
+	{
+		sig = sig.substr(start);
+	}
+	
 	size_t end = sig.find('(');
 	if (end != std::string_view::npos)
 	{
