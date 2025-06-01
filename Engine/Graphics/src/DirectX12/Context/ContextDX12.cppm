@@ -8,7 +8,7 @@ module;
 
 export module ContextDX12;
 
-import SpecificationDX12;
+import GraphicsSpecification;
 
 
 export namespace lumine::graphics::dx12
@@ -16,11 +16,12 @@ export namespace lumine::graphics::dx12
 
 class ContextDX12
 {
-	template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
 
-	void Create(const SpecificationDX12& specs);
+	void Create(const GraphicsSpecification& specs);
 	void Destroy();
 
 private:
@@ -35,6 +36,11 @@ private:
 	struct DxAdapterSelector
 	{
 		static ComPtr<IDXGIAdapter4> Select(const ComPtr<IDXGIFactory7>& pFactoryHandle);
+
+	private:
+
+		static u32 GetScore(IDXGIAdapter4* pAdapter);
+
 	};
 
 	struct DxFactory
@@ -56,7 +62,7 @@ private:
 
 	struct DxDeviceDebug
 	{
-		void Enable(const ComPtr<ID3D12Device>& pDevice);
+		void Enable(const ComPtr<ID3D12Device10>& pDevice);
 		void Report();
 
 		ComPtr<ID3D12DebugDevice2> m_Handle{ nullptr };
@@ -90,7 +96,15 @@ private:
 
 	struct DxSwapchain
 	{
-		void Create();
+		void Create(const GraphicsSpecification& specs,
+					const ComPtr<IDXGIFactory7>& pFactory,
+					const ComPtr<ID3D12CommandQueue>& pCommandQueue);
+
+		ComPtr<IDXGISwapChain4> m_pSwapchain{ nullptr };
+
+	private:
+
+		[[nodiscard]] static bool IsTearingSupported(const ComPtr<IDXGIFactory7>& pFactory);
 
 	};
 
@@ -99,6 +113,7 @@ private:
 	DxFactory m_DxFactory{};
 	DxDevice m_DxDevice{};
 	DxCommandInterface m_DxCommandInterface{};
+	DxSwapchain m_DxSwapchain{};
 	bool m_bCreated{ false };
 
 }; // ContextDX12

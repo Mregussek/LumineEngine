@@ -18,19 +18,13 @@ enum class EFormat
 };
 
 
-struct SwapchainSpecification
-{
-	u32 width{ 0 };
-	u32 height{ 0 };
-	EFormat format{ EFormat::Undefined };
-	u32 backBufferCount{ 2 };
-};
-
-
 struct GraphicsSpecification
-{
-	SwapchainSpecification swapchain{};
+{ 
+	u32 windowWidth{ 0 };
+	u32 windowHeight{ 0 };
 	WindowRawHandle windowRawHandle{};
+	EFormat swapchainFormat{ EFormat::R8G8B8A8_UNORM };
+	u32 swapchainBackBufferCount{ 3 };
 };
 
 }

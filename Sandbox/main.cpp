@@ -58,13 +58,11 @@ public:
 		m_pGraphicsApi = m_GraphicsFactory.CreateBackend(GetBackendType());
 
 		GraphicsSpecification graphicsSpecs{
-			.swapchain = {
-				.width = SandboxSettings.width,
-				.height = SandboxSettings.height,
-				.format = SandboxSettings.swapchainFormat,
-				.backBufferCount = SandboxSettings.backBufferCount
-			},
-			.windowRawHandle = m_pWindow->GetRawHandle()
+			.windowWidth = SandboxSettings.width,
+			.windowHeight = SandboxSettings.height,
+			.windowRawHandle = m_pWindow->GetRawHandle(),
+			.swapchainFormat = SandboxSettings.swapchainFormat,
+			.swapchainBackBufferCount = SandboxSettings.backBufferCount,
 		};
 		m_pGraphicsApi->Initialize(graphicsSpecs);
 	}

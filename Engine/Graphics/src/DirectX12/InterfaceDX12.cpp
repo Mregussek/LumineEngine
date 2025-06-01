@@ -16,9 +16,7 @@ void InterfaceDX12::Initialize(const GraphicsSpecification& specs)
 	DXCREATE_LOGGER();
 	DXTRACE("Initializing");
 
-	SpecificationDX12 specsDX12{};
-
-	m_Context.Create(specsDX12);
+	m_Context.Create(specs);
 
 	m_bInitialized = true;
 	DXDEBUG("Initialized");

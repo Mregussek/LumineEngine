@@ -10,19 +10,23 @@ module;
 
 module ContextDX12;
 
+import GraphicsSpecification;
+import SpecificationDX12;
 import UtilitiesDX12;
 
 
 namespace lumine::graphics::dx12
 {
 
-void ContextDX12::Create(const SpecificationDX12& specs)
+void ContextDX12::Create(const GraphicsSpecification& specs)
 {
 	DXTRACE("Creating");
 
 	m_DxFactory.Create();
 	m_DxDevice.Create(m_DxFactory.m_pAdapter);
 	m_DxCommandInterface.Create(m_DxDevice.m_Device);
+
+	m_DxSwapchain.Create(specs, m_DxFactory.m_pFactory, m_DxCommandInterface.m_pCommandQueue);
 
 	m_bCreated = true;
 	DXDEBUG("Created");
@@ -65,7 +69,7 @@ void ContextDX12::DxFactoryDebug::Enable(UINT& dxgiFactoryFlags)
 }
 
 
-static u32 GetScore(IDXGIAdapter4* pAdapter)
+u32 ContextDX12::DxAdapterSelector::GetScore(IDXGIAdapter4* pAdapter)
 {
 	u32 score{ 0 };
 
@@ -151,13 +155,48 @@ void ContextDX12::DxFactory::SelectAdapter()
 }
 
 
-void ContextDX12::DxDeviceDebug::Enable(const ComPtr<ID3D12Device>& pDevice)
+void ContextDX12::DxDeviceDebug::Enable(const ComPtr<ID3D12Device10>& pDevice)
 {
 	DXTRACE("Enabling");
 
-	HRESULT hr = pDevice->QueryInterface(IID_PPV_ARGS(m_Handle.ReleaseAndGetAddressOf()));
-	DXASSERT(hr);
+	ComPtr<ID3D12InfoQueue> pInfoQueue;
+	HRESULT hr = pDevice.As(&pInfoQueue);
 
+	if (SUCCEEDED(hr))
+	{
+		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+
+		//Suppress whole categories of messages
+		// D3D12_MESSAGE_CATEGORY Categories[] = {};
+
+		// Suppress messages based on their severity level
+		D3D12_MESSAGE_SEVERITY Severities[]{ D3D12_MESSAGE_SEVERITY_INFO };
+
+		// Suppress individual messages by their ID
+		D3D12_MESSAGE_ID DenyIds[] = {
+			D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
+			D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
+			D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
+		};
+
+		D3D12_INFO_QUEUE_FILTER NewFilter = {};
+		//NewFilter.DenyList.NumCategories = _countof(Categories);
+		//NewFilter.DenyList.pCategoryList = Categories;
+		NewFilter.DenyList.NumSeverities = _countof(Severities);
+		NewFilter.DenyList.pSeverityList = Severities;
+		NewFilter.DenyList.NumIDs = _countof(DenyIds);
+		NewFilter.DenyList.pIDList = DenyIds;
+
+		hr = pInfoQueue->PushStorageFilter(&NewFilter);
+		DXASSERT(hr);
+	}
+
+	/*
+	hr = pDevice->QueryInterface(IID_PPV_ARGS(m_Handle.ReleaseAndGetAddressOf()));
+	DXASSERT(hr);
+	*/
 	DXTRACE("Enabled Device");
 }
 
@@ -166,11 +205,13 @@ void ContextDX12::DxDeviceDebug::Report()
 {
 	DXTRACE("Reporting");
 
+	/*
 	D3D12_RLDO_FLAGS flags =
 		D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL;
 
-	m_Handle->ReportLiveDeviceObjects(flags);
-
+	HRESULT hr = m_Handle->ReportLiveDeviceObjects(flags);
+	DXASSERT(hr);
+	*/
 	DXDEBUG("Reported");
 }
 
@@ -227,29 +268,63 @@ void ContextDX12::DxCommandInterface::CreateQueue(const ComPtr<ID3D12Device10>& 
 }
 
 
-void ContextDX12::DxSwapchain::Create()
+void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
+									  const ComPtr<IDXGIFactory7>& pFactory,
+									  const ComPtr<ID3D12CommandQueue>& pCommandQueue)
 {
 	DXTRACE("Creating");
 
-	/*
-	UINT Width;
-	UINT Height;
-	DXGI_FORMAT Format;
-	BOOL Stereo;
-	DXGI_SAMPLE_DESC SampleDesc;
-	DXGI_USAGE BufferUsage;
-	UINT BufferCount;
-	DXGI_SCALING Scaling;
-	DXGI_SWAP_EFFECT SwapEffect;
-	DXGI_ALPHA_MODE AlphaMode;
-	UINT Flags;
-	*/
+	UINT flags{ 0 };
+	if (IsTearingSupported(pFactory))
+	{
+		flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+	}
+
+	DXGI_FORMAT format = SpecificationAdapterDX12::Format(specs.swapchainFormat);
 
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{
-
+		.Width = specs.windowWidth,
+		.Height = specs.windowHeight,
+		.Format = format,
+		.Stereo = FALSE,
+		.SampleDesc = { 1, 0 },
+		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+		.BufferCount = specs.swapchainBackBufferCount,
+		.Scaling = DXGI_SCALING_STRETCH,
+		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
+		.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
+		.Flags = flags
 	};
+	
+	ComPtr<IDXGISwapChain1> pSwapchain1{ nullptr };
+	HRESULT hr = pFactory->CreateSwapChainForHwnd(pCommandQueue.Get(), specs.windowRawHandle.hwnd, &swapchainDesc,
+												  nullptr, nullptr, &pSwapchain1);
+	DXASSERT(hr);
+
+	// Disable the Alt+Enter full-screen toggle feature. Switching to full-screen will be handled manually.
+	hr = pFactory->MakeWindowAssociation(specs.windowRawHandle.hwnd, DXGI_MWA_NO_ALT_ENTER);
+	DXASSERT(hr);
+
+	hr = pSwapchain1.As(&m_pSwapchain);
+	DXASSERT(hr);
 
 	DXDEBUG("Created");
+}
+
+
+bool ContextDX12::DxSwapchain::IsTearingSupported(const ComPtr<IDXGIFactory7>& pFactory)
+{
+	BOOL bTearingSupported = false;
+	HRESULT hr = pFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING,
+											   &bTearingSupported, sizeof(bTearingSupported));
+	if (SUCCEEDED(hr) && bTearingSupported == TRUE)
+	{
+		DXDEBUG("Tearing is supported");
+		return true;
+	}
+
+	DXWARN("Tearing is not supported");
+	return false;
 }
 
 
