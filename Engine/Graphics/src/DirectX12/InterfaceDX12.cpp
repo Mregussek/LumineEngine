@@ -5,6 +5,7 @@ module;
 #include <wrl/client.h>
 #include <d3d12.h>
 #include <directx/d3dx12.h>
+#include <random> // TODO: Remove
 
 module InterfaceDX12;
 
@@ -73,6 +74,14 @@ void InterfaceDX12::Present()
 }
 
 
+// TODO: Remove
+static float GenerateRandomFloat(float min = 0.0f, float max = 1.0f) {
+	static thread_local std::mt19937 generator{ std::random_device{}() };
+	std::uniform_real_distribution<float> distribution(min, max);
+	return distribution(generator);
+}
+
+
 void InterfaceDX12::PrepareCommands()
 {
 	// Getters
@@ -106,7 +115,7 @@ void InterfaceDX12::PrepareCommands()
 	{ // Clear screen
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap.Handle()->GetCPUDescriptorHandleForHeapStart(),
 			currentFrameIndex, rtvDescriptorSize);
-		const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+		const float clearColor[]{ GenerateRandomFloat(), GenerateRandomFloat(), GenerateRandomFloat(), 1.0f};
 		const UINT numRects = 0;
 		pCommandList->ClearRenderTargetView(rtvHandle, clearColor, numRects, nullptr);
 	}
