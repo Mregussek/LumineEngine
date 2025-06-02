@@ -115,7 +115,7 @@ void InterfaceDX12::PrepareCommands()
 	{ // Clear screen
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap.Handle()->GetCPUDescriptorHandleForHeapStart(),
 			currentFrameIndex, rtvDescriptorSize);
-		const float clearColor[]{ GenerateRandomFloat(), GenerateRandomFloat(), GenerateRandomFloat(), 1.0f};
+		const float clearColor[]{ GenerateRandomFloat(), 0.f, GenerateRandomFloat(), 1.0f};
 		const UINT numRects = 0;
 		pCommandList->ClearRenderTargetView(rtvHandle, clearColor, numRects, nullptr);
 	}
