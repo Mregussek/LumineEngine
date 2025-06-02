@@ -26,6 +26,8 @@ public:
 	virtual void Initialize(const GraphicsSpecification& specs) = 0;
 	virtual void Close() = 0;
 
+	virtual void Present() = 0;
+
 };
 
 
@@ -36,6 +38,8 @@ public:
 
 	void Initialize(const GraphicsSpecification& specs) override { m_Interface.Initialize(specs); }
 	void Close() override { m_Interface.Close(); }
+
+	void Present() override { m_Interface.Present(); }
 
 private:
 

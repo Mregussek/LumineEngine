@@ -83,6 +83,8 @@ public:
 					isRunning = false;
 				}
 			}
+
+			m_pGraphicsApi->Present();
 		}
 	}
 

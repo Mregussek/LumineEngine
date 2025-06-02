@@ -4,13 +4,13 @@ module;
 #include "Types.h"
 #include "LoggerDX12.h"
 #include <wrl/client.h>
-using namespace Microsoft::WRL;
-#include <dxgi1_6.h>
 #include <d3d12.h>
-#include <directx/d3dx12.h>
+#include <dxgi1_6.h>
 #include <map>
 
 module ContextDX12;
+
+using Microsoft::WRL::ComPtr;
 
 import GraphicsSpecification;
 import SpecificationDX12;
@@ -26,21 +26,13 @@ void ContextDX12::Create(const GraphicsSpecification& specs)
 
 	m_DxFactory.Create();
 	m_DxDevice.Create(m_DxFactory.Adapter());
+
 	m_DxCmdQueue.Create(m_DxDevice.Handle());
 
 	m_DxSwapchain.Create(specs, m_DxFactory.Handle(), m_DxDevice.Handle(), m_DxCmdQueue.Handle());
 	m_DxSwapchain.UpdateRTVs(m_DxDevice.Handle());
 
-	m_pDxCmdAllocators.resize(m_DxSwapchain.m_BackBufferCount);
-	for (UINT i = 0; i < m_DxSwapchain.m_BackBufferCount; i++)
-	{
-		m_pDxCmdAllocators[i].Create(m_DxDevice.Handle(), D3D12_COMMAND_LIST_TYPE_DIRECT);
-	}
-
-	UINT frameCurrentIndex = m_DxSwapchain.GetCurrentFrameIndex();
-	m_DxCmdList.Create(m_DxDevice.Handle(), m_pDxCmdAllocators[frameCurrentIndex]);
-	m_DxFence.Create(m_DxDevice.Handle());
-	m_DxFenceEvent.Create();
+	m_pDxCmdAllocator.Create(m_DxDevice.Handle(), D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	m_bCreated = true;
 	DXDEBUG("Created");
@@ -60,7 +52,7 @@ void ContextDX12::Destroy()
 }
 
 
-void ContextDX12::DxFactoryDebug::Enable(UINT& dxgiFactoryFlags)
+void DxFactoryDebug::Enable(UINT& dxgiFactoryFlags)
 {
 	DXTRACE("Enabling");
 
@@ -83,7 +75,7 @@ void ContextDX12::DxFactoryDebug::Enable(UINT& dxgiFactoryFlags)
 }
 
 
-ComPtr<IDXGIAdapter4> ContextDX12::DxAdapterSelector::Select(const ComPtr<IDXGIFactory7>& pFactoryHandle)
+ComPtr<IDXGIAdapter4> DxAdapterSelector::Select(const ComPtr<IDXGIFactory7>& pFactoryHandle)
 {
 	IDXGIAdapter4* pAdapter;
 	u32 adapterIndex = 0;
@@ -103,7 +95,7 @@ ComPtr<IDXGIAdapter4> ContextDX12::DxAdapterSelector::Select(const ComPtr<IDXGIF
 }
 
 
-u32 ContextDX12::DxAdapterSelector::GetScore(IDXGIAdapter4* pAdapter)
+u32 DxAdapterSelector::GetScore(IDXGIAdapter4* pAdapter)
 {
 	u32 score{ 0 };
 
@@ -132,7 +124,7 @@ u32 ContextDX12::DxAdapterSelector::GetScore(IDXGIAdapter4* pAdapter)
 }
 
 
-void ContextDX12::DxFactory::Create()
+void DxFactory::Create()
 {
 	DXTRACE("Creating");
 
@@ -143,7 +135,7 @@ void ContextDX12::DxFactory::Create()
 }
 
 
-void ContextDX12::DxFactory::CreateFactory()
+void DxFactory::CreateFactory()
 {
 	UINT dxgiFactoryFlags{ 0 };
 
@@ -156,7 +148,7 @@ void ContextDX12::DxFactory::CreateFactory()
 }
 
 
-void ContextDX12::DxFactory::SelectAdapter()
+void DxFactory::SelectAdapter()
 {
 	m_pAdapter = DxAdapterSelector::Select(m_pFactory);
 
@@ -169,7 +161,7 @@ void ContextDX12::DxFactory::SelectAdapter()
 }
 
 
-void ContextDX12::DxDeviceDebug::Enable(const ComPtr<ID3D12Device10>& pDevice)
+void DxDeviceDebug::Enable(const ComPtr<ID3D12Device10>& pDevice)
 {
 	DXTRACE("Enabling");
 
@@ -182,7 +174,7 @@ void ContextDX12::DxDeviceDebug::Enable(const ComPtr<ID3D12Device10>& pDevice)
 		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
 		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 
-		//Suppress whole categories of messages
+		// Suppress whole categories of messages
 		// D3D12_MESSAGE_CATEGORY Categories[] = {};
 
 		// Suppress messages based on their severity level
@@ -196,8 +188,8 @@ void ContextDX12::DxDeviceDebug::Enable(const ComPtr<ID3D12Device10>& pDevice)
 		};
 
 		D3D12_INFO_QUEUE_FILTER NewFilter = {};
-		//NewFilter.DenyList.NumCategories = _countof(Categories);
-		//NewFilter.DenyList.pCategoryList = Categories;
+		// NewFilter.DenyList.NumCategories = _countof(Categories);
+		// NewFilter.DenyList.pCategoryList = Categories;
 		NewFilter.DenyList.NumSeverities = _countof(Severities);
 		NewFilter.DenyList.pSeverityList = Severities;
 		NewFilter.DenyList.NumIDs = _countof(DenyIds);
@@ -215,7 +207,7 @@ void ContextDX12::DxDeviceDebug::Enable(const ComPtr<ID3D12Device10>& pDevice)
 }
 
 
-void ContextDX12::DxDeviceDebug::Report()
+void DxDeviceDebug::Report()
 {
 	DXTRACE("Reporting");
 
@@ -230,7 +222,7 @@ void ContextDX12::DxDeviceDebug::Report()
 }
 
 
-void ContextDX12::DxDevice::Create(const ComPtr<IDXGIAdapter4>& pAdapter)
+void DxDevice::Create(const ComPtr<IDXGIAdapter4>& pAdapter)
 {
 	DXTRACE("Creating");
 
@@ -247,7 +239,7 @@ void ContextDX12::DxDevice::Create(const ComPtr<IDXGIAdapter4>& pAdapter)
 }
 
 
-void ContextDX12::DxDevice::Destroy()
+void DxDevice::Destroy()
 {
 	DXTRACE("Destroying");
 
@@ -257,206 +249,5 @@ void ContextDX12::DxDevice::Destroy()
 
 	DXDEBUG("Destroyed");
 }
-
-
-void ContextDX12::DxCommandAllocator::Create(const ComPtr<ID3D12Device10>& pDevice,
-	D3D12_COMMAND_LIST_TYPE type)
-{
-	DXTRACE("Creating");
-
-	m_Type = type;
-	HRESULT hr = pDevice->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pHandle));
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
-}
-
-
-void ContextDX12::DxCommandQueue::Create(const ComPtr<ID3D12Device10>& pDevice)
-{
-	DXTRACE("Creating");
-
-	D3D12_COMMAND_QUEUE_DESC queueDesc{
-		.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-		.Priority = 0,
-		.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-		.NodeMask = 0
-	};
-	HRESULT hr = pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_pHandle.ReleaseAndGetAddressOf()));
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
-}
-
-
-void ContextDX12::DxCommandList::Create(const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator)
-{
-	DXTRACE("Creating");
-
-	UINT nodeMask = 0;
-	ID3D12PipelineState* pPipelinInitialState{ nullptr };
-	HRESULT hr = pDevice->CreateCommandList(nodeMask, dxCommandAllocator.Type(),
-											dxCommandAllocator.Handle().Get(),
-											pPipelinInitialState,
-											IID_PPV_ARGS(&m_pHandle));
-	DXASSERT(hr);
-
-	hr = m_pHandle->Close();
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
-}
-
-
-void ContextDX12::DxDescriptorHeap::Create(const ComPtr<ID3D12Device10>& pDevice,
-										   D3D12_DESCRIPTOR_HEAP_TYPE type,
-										   UINT numDescriptors)
-{
-	DXTRACE("Creating");
-
-	m_Type = type;
-	m_NumDescriptors = numDescriptors;
-
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc{
-		.Type = m_Type,
-		.NumDescriptors = m_NumDescriptors,
-		.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-		.NodeMask = 0
-	};
-
-	HRESULT hr = pDevice->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(m_pHandle.ReleaseAndGetAddressOf()));
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
-}
-
-
-void ContextDX12::DxSwapchain::Create(const GraphicsSpecification& specs,
-									  const ComPtr<IDXGIFactory7>& pFactory,
-									  const ComPtr<ID3D12Device10>& pDevice,
-									  const ComPtr<ID3D12CommandQueue>& pCommandQueue)
-{
-	DXTRACE("Creating");
-
-	m_BackBufferCount = specs.swapchainBackBufferCount;
-
-	UINT flags{ 0 };
-	if (IsTearingSupported(pFactory))
-	{
-		flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-	}
-
-	DXGI_FORMAT format = SpecificationAdapterDX12::Format(specs.swapchainFormat);
-
-	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{
-		.Width = specs.windowWidth,
-		.Height = specs.windowHeight,
-		.Format = format,
-		.Stereo = FALSE,
-		.SampleDesc = DXGI_SAMPLE_DESC{ .Count = 1, .Quality = 0 },
-		.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-		.BufferCount = m_BackBufferCount,
-		.Scaling = DXGI_SCALING_STRETCH,
-		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
-		.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-		.Flags = flags
-	};
-	
-	ComPtr<IDXGISwapChain1> pSwapchain1{ nullptr };
-	HRESULT hr = pFactory->CreateSwapChainForHwnd(pCommandQueue.Get(), specs.windowRawHandle.hwnd, &swapchainDesc,
-												  nullptr, nullptr, pSwapchain1.ReleaseAndGetAddressOf());
-	DXASSERT(hr);
-
-	// Disable the Alt+Enter full-screen toggle feature. Switching to full-screen will be handled manually.
-	hr = pFactory->MakeWindowAssociation(specs.windowRawHandle.hwnd, DXGI_MWA_NO_ALT_ENTER);
-	DXASSERT(hr);
-
-	hr = pSwapchain1.As(&m_pSwapchain);
-	DXASSERT(hr);
-
-	m_BackBufferVector.resize(m_BackBufferCount);
-	m_DxRtvHeap.Create(pDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_BackBufferCount);
-
-	DXDEBUG("Created");
-}
-
-
-void ContextDX12::DxSwapchain::UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice)
-{
-	DXTRACE("Updating");
-
-	UINT rtvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(m_DxRtvHeap.Type());
-	D3D12_CPU_DESCRIPTOR_HANDLE descHandle = m_DxRtvHeap.Handle()->GetCPUDescriptorHandleForHeapStart();
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descHandle);
-
-	for (UINT i = 0; i < m_BackBufferCount; ++i)
-	{
-		ComPtr<ID3D12Resource> pBackBuffer{ nullptr };
-
-		HRESULT hr = m_pSwapchain->GetBuffer(i, IID_PPV_ARGS(&pBackBuffer));
-		DXASSERT(hr);
-
-		{
-			std::wstring backBufferName{ L"SwapchainBuffer_" + std::to_wstring(i) };
-			pBackBuffer->SetName(backBufferName.c_str());
-		}
-
-		pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, rtvHandle);
-
-		m_BackBufferVector[i] = pBackBuffer;
-
-		rtvHandle.Offset(rtvDescriptorSize);
-	}
-
-	DXDEBUG("Updated");
-}
-
-
-UINT ContextDX12::DxSwapchain::GetCurrentFrameIndex() const
-{
-	return m_pSwapchain->GetCurrentBackBufferIndex();
-}
-
-
-bool ContextDX12::DxSwapchain::IsTearingSupported(const ComPtr<IDXGIFactory7>& pFactory)
-{
-	BOOL bTearingSupported = false;
-	HRESULT hr = pFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING,
-											   &bTearingSupported, sizeof(bTearingSupported));
-	if (SUCCEEDED(hr) && bTearingSupported == TRUE)
-	{
-		DXDEBUG("Tearing is supported");
-		return true;
-	}
-
-	DXWARN("Tearing is not supported");
-	return false;
-}
-
-
-void ContextDX12::DxFence::Create(const ComPtr<ID3D12Device10>& pDevice)
-{
-	DXTRACE("Creating");
-
-	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pHandle));
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
-}
-
-
-void ContextDX12::DxFenceEvent::Create()
-{
-	DXTRACE("Creating");
-
-	m_FenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-	if (not m_FenceEvent)
-	{
-		DXASSERT(HRESULT_FROM_WIN32(GetLastError()));
-	}
-	
-	DXDEBUG("Created");
-}
-
 
 }

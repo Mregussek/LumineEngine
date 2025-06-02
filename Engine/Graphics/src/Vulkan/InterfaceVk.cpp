@@ -18,9 +18,16 @@ void InterfaceVk::Initialize(const GraphicsSpecification& specs)
 	VKTRACE("Initialized");
 }
 
+
 void InterfaceVk::Close()
 {
 	VKTRACE("Closed");
+}
+
+
+void InterfaceVk::Present()
+{
+
 }
 
 }

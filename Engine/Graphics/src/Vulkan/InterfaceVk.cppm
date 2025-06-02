@@ -15,6 +15,8 @@ public:
 	void Initialize(const GraphicsSpecification& specs);
 	void Close();
 
+	void Present();
+
 };
 
 }
