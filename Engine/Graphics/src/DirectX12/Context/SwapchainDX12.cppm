@@ -28,6 +28,7 @@ public:
 
 	void UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice);
 
+	void Present() const;
 
 	[[nodiscard]] const ComPtr<IDXGISwapChain4>& Handle() const { return m_pSwapchain; }
 	[[nodiscard]] UINT GetCurrentFrameIndex() const;

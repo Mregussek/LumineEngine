@@ -99,6 +99,16 @@ void DxSwapchain::UpdateRTVs(const ComPtr<ID3D12Device10>& pDevice)
 	DXDEBUG("Updated");
 }
 
+
+void DxSwapchain::Present() const
+{
+	const UINT syncInterval = 1;
+	const UINT flags = 0;
+	HRESULT hr = m_pSwapchain->Present(syncInterval, flags);
+	DXASSERT(hr);
+}
+
+
 UINT DxSwapchain::GetCurrentFrameIndex() const
 {
 	return m_pSwapchain->GetCurrentBackBufferIndex();

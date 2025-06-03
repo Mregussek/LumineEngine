@@ -67,8 +67,7 @@ void InterfaceDX12::Present()
 	ID3D12CommandList* ppCommandLists[] = { m_DxCmdList.Handle().Get()};
 	dxCmdQueue.Handle()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-	HRESULT hr = dxSwapchain.Handle()->Present(1, 0);
-	DXASSERT(hr);
+	dxSwapchain.Present();
 
 	WaitForPreviousFrame();
 }
