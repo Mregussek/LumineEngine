@@ -3,29 +3,17 @@ module;
 
 #include <wrl/client.h>
 #include <d3d12.h>
+#include <span>
 
 export module CommandsDX12;
+
+import SynchronizationDX12;
 
 using Microsoft::WRL::ComPtr;
 
 
 export namespace lumine::graphics::dx12
 {
-
-class DxCommandQueue
-{
-public:
-
-	void Create(const ComPtr<ID3D12Device10>& pDevice);
-
-	[[nodiscard]] const ComPtr<ID3D12CommandQueue>& Handle() const { return m_pHandle; }
-
-private:
-
-	ComPtr<ID3D12CommandQueue> m_pHandle{ nullptr };
-
-};
-
 
 class DxCommandAllocator
 {
@@ -54,6 +42,23 @@ public:
 private:
 
 	ComPtr<ID3D12GraphicsCommandList10> m_pHandle{ nullptr };
+
+};
+
+
+class DxCommandQueue
+{
+public:
+
+	void Create(const ComPtr<ID3D12Device10>& pDevice);
+
+	void Execute(std::span<ID3D12CommandList*> commandLists, DxFence& dxFence) const;
+
+	[[nodiscard]] const ComPtr<ID3D12CommandQueue>& Handle() const { return m_pHandle; }
+
+private:
+
+	ComPtr<ID3D12CommandQueue> m_pHandle{ nullptr };
 
 };
 

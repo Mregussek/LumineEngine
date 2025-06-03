@@ -4,8 +4,11 @@ module;
 #include "LoggerDX12.h"
 #include <wrl/client.h>
 #include <d3d12.h>
+#include <span>
 
 module CommandsDX12;
+
+import SynchronizationDX12;
 
 using Microsoft::WRL::ComPtr;
 
@@ -20,6 +23,25 @@ void DxCommandAllocator::Create(const ComPtr<ID3D12Device10>& pDevice,
 
 	m_Type = type;
 	HRESULT hr = pDevice->CreateCommandAllocator(type, IID_PPV_ARGS(&m_pHandle));
+	DXASSERT(hr);
+
+	DXDEBUG("Created");
+}
+
+
+void DxCommandList::Create(const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator)
+{
+	DXTRACE("Creating");
+
+	UINT nodeMask = 0;
+	ID3D12PipelineState* pPipelinInitialState{ nullptr };
+	HRESULT hr = pDevice->CreateCommandList(nodeMask, dxCommandAllocator.Type(),
+		dxCommandAllocator.Handle().Get(),
+		pPipelinInitialState,
+		IID_PPV_ARGS(&m_pHandle));
+	DXASSERT(hr);
+
+	hr = m_pHandle->Close();
 	DXASSERT(hr);
 
 	DXDEBUG("Created");
@@ -43,22 +65,9 @@ void DxCommandQueue::Create(const ComPtr<ID3D12Device10>& pDevice)
 }
 
 
-void DxCommandList::Create(const ComPtr<ID3D12Device10>& pDevice, const DxCommandAllocator& dxCommandAllocator)
+void DxCommandQueue::Execute(std::span<ID3D12CommandList*> commandLists, DxFence& dxFence) const
 {
-	DXTRACE("Creating");
-
-	UINT nodeMask = 0;
-	ID3D12PipelineState* pPipelinInitialState{ nullptr };
-	HRESULT hr = pDevice->CreateCommandList(nodeMask, dxCommandAllocator.Type(),
-		dxCommandAllocator.Handle().Get(),
-		pPipelinInitialState,
-		IID_PPV_ARGS(&m_pHandle));
-	DXASSERT(hr);
-
-	hr = m_pHandle->Close();
-	DXASSERT(hr);
-
-	DXDEBUG("Created");
+	m_pHandle->ExecuteCommandLists(commandLists.size(), commandLists.data());
 }
 
 }

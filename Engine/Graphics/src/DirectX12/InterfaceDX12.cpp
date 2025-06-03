@@ -64,8 +64,8 @@ void InterfaceDX12::Present()
 	const DxCommandQueue& dxCmdQueue = m_Context.CmdQueue();
 	const DxSwapchain& dxSwapchain = m_Context.Swapchain();
 
-	ID3D12CommandList* ppCommandLists[] = { m_DxCmdList.Handle().Get()};
-	dxCmdQueue.Handle()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	ID3D12CommandList* ppCommandLists[] = { m_DxCmdList.Handle().Get() };
+	dxCmdQueue.Execute(ppCommandLists, m_DxFence);
 
 	dxSwapchain.Present();
 
