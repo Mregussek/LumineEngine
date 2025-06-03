@@ -6,6 +6,7 @@ module;
 #include <d3d12.h>
 #include <directx/d3dx12.h>
 #include <random> // TODO: Remove
+#include <span>
 
 module InterfaceDX12;
 
@@ -92,49 +93,22 @@ void InterfaceDX12::PrepareCommands()
 {
 	// Getters
 	const DxCommandAllocator& dxCmdAllocator = m_Context.CmdAllocator();
-	const ComPtr<ID3D12GraphicsCommandList10>& pCommandList = m_DxCmdList.Handle();
-
 	const DxSwapchain& dxSwapchain = m_Context.Swapchain();
-	const std::vector<ComPtr<ID3D12Resource>>& backBuffers = dxSwapchain.GetBackBuffers();
-	
-	const UINT rtvDescriptorSize = dxSwapchain.GetRtvDescriptorSize();
-	const DxDescriptorHeap& rtvHeap = dxSwapchain.GetRtvHeap();
-	
-	const UINT currentFrameIndex = dxSwapchain.GetCurrentFrameIndex();
-	ID3D12Resource* pCurrentBackBuffer = backBuffers[currentFrameIndex].Get();
+	const ComPtr<ID3D12Resource> pCurrentBackBuffer = dxSwapchain.GetCurrentBackBuffer();
 
-	// Impl
-	HRESULT hr = dxCmdAllocator.Handle()->Reset();
-	DXASSERT(hr);
-
-	pCommandList->Reset(dxCmdAllocator.Handle().Get(), m_pipelineState.Get());
+	dxCmdAllocator.Reset();
+	m_DxCmdList.Reset(m_pipelineState.Get());
 
 	// Record Commands
 
-	{ // Indicate to use Back Buffer as Render Target
-		constexpr int numBarriers{ 1 };
-		CD3DX12_RESOURCE_BARRIER resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-			pCurrentBackBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		pCommandList->ResourceBarrier(numBarriers, &resourceBarrier);
-	}
+	m_DxCmdList.ResourceBarrier(pCurrentBackBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	{ // Clear screen
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap.Handle()->GetCPUDescriptorHandleForHeapStart(),
-			currentFrameIndex, rtvDescriptorSize);
-		const float clearColor[]{ GenerateRandomFloat(), 0.f, GenerateRandomFloat(), 1.0f};
-		const UINT numRects = 0;
-		pCommandList->ClearRenderTargetView(rtvHandle, clearColor, numRects, nullptr);
-	}
+	const float clearColor[]{ GenerateRandomFloat(), 0.f, GenerateRandomFloat(), 1.0f };
+	m_DxCmdList.ClearRenderTarget(dxSwapchain, clearColor);
 
-	{ // Change Back Buffer state from Render Target to Window Present
-		constexpr int numBarriers{ 1 };
-		CD3DX12_RESOURCE_BARRIER resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-			pCurrentBackBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		pCommandList->ResourceBarrier(numBarriers, &resourceBarrier);
-	}
+	m_DxCmdList.ResourceBarrier(pCurrentBackBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-	hr = pCommandList->Close();
-	DXASSERT(hr);
+	m_DxCmdList.EndRecording();
 }
 
 }

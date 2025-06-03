@@ -33,6 +33,7 @@ public:
 	[[nodiscard]] const ComPtr<IDXGISwapChain4>& Handle() const { return m_pSwapchain; }
 	[[nodiscard]] UINT GetCurrentFrameIndex() const;
 	[[nodiscard]] const std::vector<ComPtr<ID3D12Resource>>& GetBackBuffers() const { return m_BackBufferVector; }
+	[[nodiscard]] const ComPtr<ID3D12Resource>& GetCurrentBackBuffer() const { return m_BackBufferVector[GetCurrentFrameIndex()]; }
 	[[nodiscard]] UINT GetRtvDescriptorSize() const { return m_rtvDescriptorSize; }
 	[[nodiscard]] const DxDescriptorHeap& GetRtvHeap() const { return m_DxRtvHeap; }
 
