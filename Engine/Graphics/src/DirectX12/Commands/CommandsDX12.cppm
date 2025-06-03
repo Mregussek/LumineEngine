@@ -52,7 +52,8 @@ public:
 
 	void Create(const ComPtr<ID3D12Device10>& pDevice);
 
-	void Execute(std::span<ID3D12CommandList*> commandLists, DxFence& dxFence) const;
+	void Execute(std::span<ID3D12CommandList*> commandLists) const;
+	void Signal(DxFence& dxFence) const;
 
 	[[nodiscard]] const ComPtr<ID3D12CommandQueue>& Handle() const { return m_pHandle; }
 

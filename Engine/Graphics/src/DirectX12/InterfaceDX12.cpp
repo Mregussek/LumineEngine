@@ -43,7 +43,10 @@ void InterfaceDX12::Close()
 {
 	DXTRACE("Closing");
 
-	WaitForPreviousFrame();
+	if (not m_DxFence.IsSubmittedWorkCompleted())
+	{
+		m_DxFence.Wait();
+	}
 
 	if (m_bInitialized)
 	{
@@ -64,11 +67,16 @@ void InterfaceDX12::Present()
 	const DxSwapchain& dxSwapchain = m_Context.Swapchain();
 
 	ID3D12CommandList* ppCommandLists[] = { m_DxCmdList.Handle().Get() };
-	dxCmdQueue.Execute(ppCommandLists, m_DxFence);
+	dxCmdQueue.Execute(ppCommandLists);
 
 	dxSwapchain.Present();
 
-	WaitForPreviousFrame();
+	dxCmdQueue.Signal(m_DxFence);
+
+	if (not m_DxFence.IsSubmittedWorkCompleted())
+	{
+		m_DxFence.Wait();
+	}
 }
 
 
@@ -127,23 +135,6 @@ void InterfaceDX12::PrepareCommands()
 
 	hr = pCommandList->Close();
 	DXASSERT(hr);
-}
-
-
-void InterfaceDX12::WaitForPreviousFrame()
-{
-	const DxCommandQueue& dxCmdQueue = m_Context.CmdQueue();
-
-	HRESULT hr = dxCmdQueue.Handle()->Signal(m_DxFence.Handle().Get(), m_DxFence.GetAvailableValue());
-	DXASSERT(hr);
-
-	m_DxFence.UpdateValue();
-
-	if (not m_DxFence.IsSubmittedWorkCompleted())
-	{
-		m_DxFence.Wait();
-	}
-
 }
 
 }

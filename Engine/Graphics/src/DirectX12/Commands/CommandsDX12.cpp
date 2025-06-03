@@ -65,9 +65,18 @@ void DxCommandQueue::Create(const ComPtr<ID3D12Device10>& pDevice)
 }
 
 
-void DxCommandQueue::Execute(std::span<ID3D12CommandList*> commandLists, DxFence& dxFence) const
+void DxCommandQueue::Execute(std::span<ID3D12CommandList*> commandLists) const
 {
 	m_pHandle->ExecuteCommandLists(commandLists.size(), commandLists.data());
+}
+
+
+void DxCommandQueue::Signal(DxFence& dxFence) const
+{
+	HRESULT hr = m_pHandle->Signal(dxFence.Handle().Get(), dxFence.GetAvailableValue());
+	DXASSERT(hr);
+
+	dxFence.UpdateValue();
 }
 
 }

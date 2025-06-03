@@ -28,7 +28,6 @@ public:
 private:
 
 	void PrepareCommands();
-	void WaitForPreviousFrame();
 
 private:
 
