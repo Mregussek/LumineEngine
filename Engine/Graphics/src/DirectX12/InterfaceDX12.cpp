@@ -33,7 +33,6 @@ void InterfaceDX12::Initialize(const GraphicsSpecification& specs)
 
 	m_DxCmdList.Create(dxDevice.Handle(), dxCmdAllocator);
 	m_DxFence.Create(dxDevice.Handle());
-	m_DxFenceEvent.Create();
 
 	m_bInitialized = true;
 	DXINFO("Initialized");
@@ -48,7 +47,7 @@ void InterfaceDX12::Close()
 
 	if (m_bInitialized)
 	{
-		m_DxFenceEvent.Close();
+		m_DxFence.Close();
 		m_Context.Destroy();
 	}
 
@@ -143,9 +142,7 @@ void InterfaceDX12::WaitForPreviousFrame()
 
 	if (m_DxFence.Handle()->GetCompletedValue() < fence)
 	{
-		hr = m_DxFence.Handle()->SetEventOnCompletion(fence, m_DxFenceEvent.Handle());
-		DXASSERT(hr);
-		m_DxFenceEvent.Wait();
+		m_DxFence.Wait(fence);
 	}
 
 }

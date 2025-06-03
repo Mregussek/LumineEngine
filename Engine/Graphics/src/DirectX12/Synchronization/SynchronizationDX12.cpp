@@ -13,18 +13,6 @@ using Microsoft::WRL::ComPtr;
 namespace lumine::graphics::dx12
 {
 
-void DxFence::Create(const ComPtr<ID3D12Device10>& pDevice)
-{
-	DXTRACE("Creating");
-
-	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pHandle));
-	DXASSERT(hr);
-
-	m_Value = 1;
-
-	DXDEBUG("Created");
-}
-
 
 void DxFenceEvent::Create()
 {
@@ -55,9 +43,42 @@ void DxFenceEvent::Close()
 }
 
 
-void DxFenceEvent::Wait()
+void DxFenceEvent::Wait() const
 {
 	WaitForSingleObject(m_Handle, INFINITE);
+}
+
+
+void DxFence::Create(const ComPtr<ID3D12Device10>& pDevice)
+{
+	DXTRACE("Creating");
+
+	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pHandle));
+	DXASSERT(hr);
+
+	m_Value = 1;
+
+	m_DxEvent.Create();
+
+	DXDEBUG("Created");
+}
+
+
+void DxFence::Close()
+{
+	DXTRACE("Closing");
+
+	m_DxEvent.Close();
+
+	DXDEBUG("Closed");
+}
+
+
+void DxFence::Wait(UINT64 value) const
+{
+	HRESULT hr = m_pHandle->SetEventOnCompletion(value, m_DxEvent.Handle());
+	DXASSERT(hr);
+	m_DxEvent.Wait();
 }
 
 }

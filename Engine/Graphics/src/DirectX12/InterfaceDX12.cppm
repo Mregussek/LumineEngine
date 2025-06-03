@@ -36,7 +36,6 @@ private:
 
 	DxCommandList m_DxCmdList{};
 	DxFence m_DxFence{};
-	DxFenceEvent m_DxFenceEvent{};
 	ComPtr<ID3D12PipelineState> m_pipelineState{ nullptr };
 
 	bool m_bInitialized{ false };
