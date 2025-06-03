@@ -40,18 +40,22 @@ public:
 	void Create(const ComPtr<ID3D12Device10>& pDevice);
 	void Close();
 
-	void IncrementValue() { m_Value++; }
+	void UpdateValue();
 
-	void Wait(UINT64 value) const;
+	bool IsSubmittedWorkCompleted() const;
+
+	void Wait() const;
 
 	[[nodiscard]] const ComPtr<ID3D12Fence1>& Handle() const { return m_pHandle; }
-	[[nodiscard]] UINT64 Value() const { return m_Value; }
+	[[nodiscard]] UINT64 GetAvailableValue() const { return m_ValueAvailable; }
+	[[nodiscard]] UINT64 GetSubmittedValue() const { return m_ValueSubmitted; }
 
 private:
 
 	ComPtr<ID3D12Fence1> m_pHandle{ nullptr };
 	DxFenceEvent m_DxEvent{};
-	UINT64 m_Value{ 0 };
+	UINT64 m_ValueAvailable{ 0 };
+	UINT64 m_ValueSubmitted{ 0 };
 
 };
 

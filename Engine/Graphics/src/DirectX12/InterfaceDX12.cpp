@@ -133,16 +133,15 @@ void InterfaceDX12::PrepareCommands()
 void InterfaceDX12::WaitForPreviousFrame()
 {
 	const DxCommandQueue& dxCmdQueue = m_Context.CmdQueue();
-	const UINT64 fence = m_DxFence.Value();
 
-	HRESULT hr = dxCmdQueue.Handle()->Signal(m_DxFence.Handle().Get(), fence);
+	HRESULT hr = dxCmdQueue.Handle()->Signal(m_DxFence.Handle().Get(), m_DxFence.GetAvailableValue());
 	DXASSERT(hr);
 
-	m_DxFence.IncrementValue();
+	m_DxFence.UpdateValue();
 
-	if (m_DxFence.Handle()->GetCompletedValue() < fence)
+	if (not m_DxFence.IsSubmittedWorkCompleted())
 	{
-		m_DxFence.Wait(fence);
+		m_DxFence.Wait();
 	}
 
 }

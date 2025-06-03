@@ -56,7 +56,8 @@ void DxFence::Create(const ComPtr<ID3D12Device10>& pDevice)
 	HRESULT hr = pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pHandle));
 	DXASSERT(hr);
 
-	m_Value = 1;
+	m_ValueSubmitted = 0;
+	m_ValueAvailable = 1;
 
 	m_DxEvent.Create();
 
@@ -74,9 +75,22 @@ void DxFence::Close()
 }
 
 
-void DxFence::Wait(UINT64 value) const
+void DxFence::UpdateValue()
 {
-	HRESULT hr = m_pHandle->SetEventOnCompletion(value, m_DxEvent.Handle());
+	m_ValueSubmitted = m_ValueAvailable;
+	m_ValueAvailable++;
+}
+
+
+bool DxFence::IsSubmittedWorkCompleted() const
+{
+	return m_pHandle->GetCompletedValue() >= m_ValueSubmitted;
+}
+
+
+void DxFence::Wait() const
+{
+	HRESULT hr = m_pHandle->SetEventOnCompletion(m_ValueSubmitted, m_DxEvent.Handle());
 	DXASSERT(hr);
 	m_DxEvent.Wait();
 }
